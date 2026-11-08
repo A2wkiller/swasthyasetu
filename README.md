@@ -33,6 +33,22 @@ Or paste the key into the key box on the Scan tab (stored only in your
 browser's localStorage). With no key, sample documents show a pre-computed
 demo read so the flow is always demonstrable.
 
+## Live demo
+
+**https://a2wkiller.github.io/swasthyasetu/** - hosted on GitHub Pages. Everything
+works there except live AI reading (Pages is static, so the server-side key proxy
+is not available); paste a BharatCode key into the Scan tab's key box for live reads,
+or use the built-in demo reads.
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Landing](docs/screenshots/landing.jpg) | ![Book an appointment](docs/screenshots/book-appointment.jpg) |
+| ![Live queue token](docs/screenshots/queue-token.jpg) | ![AI document reader, English + Hindi](docs/screenshots/document-reader.jpg) |
+| ![Hospital staff dashboard](docs/screenshots/staff-dashboard.jpg) | ![Live 3D ward](docs/screenshots/ward-3d.jpg) |
+| ![Family view of an admitted patient](docs/screenshots/family-vitals.jpg) | |
+
 ## Two portals, one app
 
 - **Patient & family portal** (no sign-in): AI document reader, timeline, reminders,
