@@ -44,7 +44,9 @@ python3 serve.py        # open http://localhost:8000
 
 Vanilla HTML/CSS/JS single-page app (no build step), `serve.py` (Python stdlib) as a
 static server + `/api/responses` proxy so the API key never ships in the browser.
-QR: vendored qrcodejs (MIT). The animated anatomy view is original SVG work inspired by open anatomy projects (Z-Anatomy is Unity/CC-BY-SA and too heavy to embed, so no assets were copied). AI: BharatCode `qwen-3.8-27b` vision model via the
+QR: vendored qrcodejs (MIT). 3D: three.js (MIT) with a real anatomy model
+(vendor/body.glb, CC BY-SA 4.0 - Z-Anatomy, simplified by hpfrei; see NOTICE).
+The animated body view falls back to an original SVG if WebGL is unavailable. AI: BharatCode `qwen-3.8-27b` vision model via the
 OpenAI-compatible Responses API.
 
 ## Files

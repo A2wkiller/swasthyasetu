@@ -447,22 +447,22 @@ window.bookHomeSample = (lab, test, price) => {
 const NURSES = ["Nurse Asha", "Nurse Reema", "Nurse Joseph", "Dr. on rounds"];
 function mkBill(seed) { return seed.map(([t, item, amt]) => ({ t, item, amt })); }
 let PATIENTS = [
-  { id: "w1", bed: "ICU-2", zone: "ICU", name: "R. Patil", age: 58, prob: "Post-surgery recovery", day: "Day 2", sys: 128, dia: 84, hr: 88, spo2: 97, temp: 98.6, xy: [70, 60],
+  { id: "w1", xy3: [-4.2,-1.6], bed: "ICU-2", zone: "ICU", name: "R. Patil", age: 58, prob: "Post-surgery recovery", day: "Day 2", sys: 128, dia: 84, hr: 88, spo2: 97, temp: 98.6, xy: [70, 60],
     meds: [["Ceftriaxone", "1 g", "IV"], ["Paracetamol", "500 mg", "Oral"], ["Dressing change", "-", "-"]],
     bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:05", "Ceftriaxone 1 g IV", 340], ["09:30", "Doctor round", 800]]), log: [] },
-  { id: "w2", bed: "ICU-5", zone: "ICU", name: "S. Shaikh", age: 63, prob: "Cardiac observation", day: "Day 1", sys: 150, dia: 96, hr: 104, spo2: 94, temp: 99.1, xy: [260, 60],
+  { id: "w2", xy3: [-0.6,-1.6], bed: "ICU-5", zone: "ICU", name: "S. Shaikh", age: 63, prob: "Cardiac observation", day: "Day 1", sys: 150, dia: 96, hr: 104, spo2: 94, temp: 99.1, xy: [260, 60],
     meds: [["Sorbitrate", "5 mg", "Sublingual"], ["Atorvastatin", "20 mg", "Oral"], ["ECG recording", "-", "-"]],
     bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:20", "Cardiac monitor (hourly)", 250]]), log: [] },
-  { id: "w3", bed: "G-12", zone: "General", name: "M. Iyer", age: 34, prob: "Dengue fever", day: "Day 3", sys: 110, dia: 72, hr: 92, spo2: 98, temp: 100.4, xy: [450, 60],
+  { id: "w3", xy3: [3.6,-1.6], bed: "G-12", zone: "General", name: "M. Iyer", age: 34, prob: "Dengue fever", day: "Day 3", sys: 110, dia: 72, hr: 92, spo2: 98, temp: 100.4, xy: [450, 60],
     meds: [["Paracetamol", "650 mg", "Oral"], ["ORS fluids", "500 ml", "Oral"], ["Platelet count test", "-", "Lab"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["07:45", "Platelet count", 350]]), log: [] },
-  { id: "w4", bed: "G-15", zone: "General", name: "A. Joshi", age: 27, prob: "Fracture - leg", day: "Day 4", sys: 118, dia: 78, hr: 76, spo2: 99, temp: 98.2, xy: [70, 200],
+  { id: "w4", xy3: [-4.2,1.6], bed: "G-15", zone: "General", name: "A. Joshi", age: 27, prob: "Fracture - leg", day: "Day 4", sys: 118, dia: 78, hr: 76, spo2: 99, temp: 98.2, xy: [70, 200],
     meds: [["Aceclofenac", "100 mg", "Oral"], ["Calcium + D3", "1 tab", "Oral"], ["Physiotherapy", "20 min", "-"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["09:00", "Physiotherapy session", 500]]), log: [] },
-  { id: "w5", bed: "P-3", zone: "Private", name: "K. Singh", age: 45, prob: "Pneumonia", day: "Day 2", sys: 135, dia: 88, hr: 96, spo2: 93, temp: 100.1, xy: [260, 200],
+  { id: "w5", xy3: [-0.6,1.6], bed: "P-3", zone: "Private", name: "K. Singh", age: 45, prob: "Pneumonia", day: "Day 2", sys: 135, dia: 88, hr: 96, spo2: 93, temp: 100.1, xy: [260, 200],
     meds: [["Azithromycin", "500 mg", "Oral"], ["Nebulisation", "2.5 mg", "Inhalation"], ["Chest X-ray", "-", "Radiology"]],
     bill: mkBill([["08:00", "Private room (today so far)", 3500], ["08:40", "Nebulisation", 200]]), log: [] },
-  { id: "w6", bed: "G-18", zone: "General", name: "L. Verma", age: 71, prob: "COPD exacerbation", day: "Day 5", sys: 122, dia: 80, hr: 84, spo2: 95, temp: 98.8, xy: [450, 200],
+  { id: "w6", xy3: [3.6,1.6], bed: "G-18", zone: "General", name: "L. Verma", age: 71, prob: "COPD exacerbation", day: "Day 5", sys: 122, dia: 80, hr: 84, spo2: 95, temp: 98.8, xy: [450, 200],
     meds: [["Budesonide neb", "0.5 mg", "Inhalation"], ["Oxygen support", "2 L/min", "-"], ["Theophylline", "200 mg", "Oral"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["08:10", "Oxygen (per hr)", 120]]), log: [] }
 ];
@@ -474,16 +474,13 @@ function jitter(v, amt, lo, hi) { return Math.max(lo, Math.min(hi, v + (Math.ran
 function nowHM() { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
 
 /* 3D ward */
+let wardInited = false;
 function renderWard() {
-  const fl = $("ward3d");
-  fl.innerHTML = PATIENTS.map(p => {
-    const st = patStatus(p);
-    return `<div class="bed3d st-${st} ${p.id === wardSelected ? "sel" : ""}" style="left:${p.xy[0]}px;top:${p.xy[1]}px" onclick="selectWard('${p.id}')">
-      <div class="bed-frame"></div><div class="bed-mattress"></div>
-      <div class="bed-patient"></div><div class="bed-tag">${p.bed}</div>
-      ${st !== "stable" ? '<div class="bed-alarm"></div>' : ""}
-    </div>`;
-  }).join("") + `<div class="ward-label wc-icu">ICU</div><div class="ward-label wc-g">GENERAL WARD</div><div class="ward-label wc-p">PRIVATE</div>`;
+  if (!wardInited) {
+    try { Ward3D.init($("wardCanvas"), PATIENTS, id => selectWard(id)); wardInited = true; }
+    catch (e) { console.warn("ward3d failed", e); }
+  }
+  if (wardInited) Ward3D.sync(PATIENTS, wardSelected);
   const p = pat(wardSelected), st = patStatus(p);
   $("wardPatient").innerHTML = `<h3>${p.bed} · ${p.name}</h3>
     <p class="muted">${p.prob} · ${p.day} · Age ${p.age} · ${p.zone}</p>
@@ -519,7 +516,16 @@ $("billSelect").addEventListener("change", e => { billSelected = e.target.value;
 let hrHist = {}; // id -> array of hr
 /* Animated body view: original lightweight SVG, inspired by the technique of
    open 3D anatomy projects (Z-Anatomy is Unity/CC-BY-SA, too heavy to embed). */
+let bodyInited = false;
 function renderBody(p) {
+  if (!bodyInited) { try { BodyView.init($("bodyCanvas")); bodyInited = true; } catch (e) { console.warn("body3d failed", e); } }
+  if (bodyInited) {
+    BodyView.setHR(p.hr);
+    const ready = BodyView.isReady(), failed = BodyView.hasFailed();
+    $("bodyCanvas").style.display = ready ? "block" : "none";
+    $("fvBody").style.display = ready ? "none" : "block";
+    if (ready) return; // 3D body replaces the SVG fallback
+  }
   const beat = (60 / Math.max(40, p.hr)).toFixed(2); // seconds per heartbeat
   const spo2Col = p.spo2 < 94 ? "#ef4444" : p.spo2 < 96 ? "#f59e0b" : "#38bdf8";
   $("fvBody").innerHTML = `<svg viewBox="0 0 200 260" class="body-svg" aria-label="animated body view">

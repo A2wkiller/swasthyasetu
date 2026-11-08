@@ -1,0 +1,21 @@
+SwasthyaSetu attribution notices
+================================
+
+1. 3D anatomy model: vendor/body.glb
+   Derived from the Z-Anatomy open anatomy dataset (https://github.com/Z-Anatomy)
+   and decimated/compressed by the body-anatomy-3d-viewer project
+   (https://github.com/hpfrei/body-anatomy-3d-viewer).
+   Both are licensed Creative Commons Attribution-ShareAlike 4.0 International
+   (CC BY-SA 4.0): https://creativecommons.org/licenses/by-sa/4.0/
+   Attribution: "Z-Anatomy (CC BY-SA 4.0); simplified by hpfrei (CC BY-SA 4.0)".
+   Share-alike: any adaptation or redistribution of this model or its renders
+   must carry the same CC BY-SA 4.0 license. This license applies to the model
+   and its derivatives, not to the SwasthyaSetu application code.
+
+2. three.js r128 + GLTFLoader/DRACOLoader/OrbitControls - MIT License
+   (c) three.js authors. https://github.com/mrdoob/three.js
+
+3. qrcodejs - MIT License (c) davidshimjs. https://github.com/davidshimjs/qrcodejs
+
+4. Google DRACO decoder (vendor/draco) - Apache License 2.0.
+   https://github.com/google/draco

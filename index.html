@@ -176,7 +176,7 @@
       <div class="card ward-stage-card">
         <h3>Ward live preview <span class="live-dot"></span> <span class="muted small">click a bed to inspect the patient</span>
           <button id="vitalsAiBtn" class="btn ghost small" style="float:right">AI shift summary</button></h3>
-        <div class="ward-stage"><div id="ward3d" class="ward-floor"></div></div>
+        <div class="ward-stage"><canvas id="wardCanvas"></canvas></div>
         <div class="legend">Bed color: <span class="pill ok">stable</span> <span class="pill warn">review</span> <span class="pill bad">critical</span> · vitals drift live (simulated)</div>
         <div id="vitalsAi" class="notice hidden"></div>
       </div>
@@ -191,6 +191,7 @@
       <div class="family-grid">
         <div class="vital-card body-card">
           <div class="vital-label">Live body view <span class="muted" style="text-transform:none">(animated, not diagnostic)</span></div>
+          <canvas id="bodyCanvas" class="body-canvas"></canvas>
           <div id="fvBody"></div>
         </div>
         <div class="vitals-grid">
@@ -237,6 +238,11 @@
 </footer>
 
 <script src="vendor/qrcode.min.js"></script>
+<script src="vendor/three.min.js"></script>
+<script src="vendor/DRACOLoader.js"></script>
+<script src="vendor/GLTFLoader.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="ward3d.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
