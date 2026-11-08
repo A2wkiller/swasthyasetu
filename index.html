@@ -7,7 +7,42 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="topbar">
+<!-- ============ ENTRY: role select + staff login ============ -->
+<div id="screen-landing" class="entry">
+  <div class="entry-card">
+    <div class="brand" style="justify-content:center"><div class="logo">+</div><div><h1>SwasthyaSetu</h1><div class="tagline">स्वास्थ्य सेतु - your health, one bridge</div></div></div>
+    <p class="entry-sub">One platform for families and hospitals. Choose how you want to enter.</p>
+    <div class="entry-roles">
+      <button class="role-card" id="enterPatient">
+        <div class="role-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="role-name">For Patients & Families</div>
+        <div class="role-desc">Read prescriptions with AI, book doctors, track tokens, follow an admitted family member's vitals and bill.</div>
+      </button>
+      <button class="role-card staff" id="enterStaff">
+        <div class="role-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg></div>
+        <div class="role-name">For Hospitals (Staff)</div>
+        <div class="role-desc">Ward live view, patient vitals, medication & care log, billing. Staff sign-in required.</div>
+      </button>
+    </div>
+    <p class="entry-note">Hackathon build - hospital-side data is simulated live for the demo; the AI document reader is real.</p>
+  </div>
+</div>
+<div id="screen-staff-login" class="entry hidden">
+  <div class="entry-card narrow">
+    <div class="brand"><div class="logo">+</div><div><h1>Staff sign-in</h1><div class="tagline">SwasthyaSetu for Hospitals</div></div></div>
+    <label class="inp-label">Hospital</label>
+    <select id="staffHospital" class="inp" style="width:100%"><option>CityCare Hospital, Pune</option><option>Ruby Hall Clinic, Pune</option><option>Jehangir Hospital, Pune</option></select>
+    <label class="inp-label">Staff ID</label>
+    <input id="staffId" class="inp" style="width:100%" placeholder="e.g. CC-NURSE-12" value="CC-NURSE-12">
+    <label class="inp-label">Password</label>
+    <input id="staffPass" type="password" class="inp" style="width:100%" placeholder="••••••••" value="demo123">
+    <button class="btn primary" id="staffLoginBtn" style="width:100%;margin-top:14px">Sign in</button>
+    <p class="entry-note">Demo sign-in: any ID works; access is role-labeled, no real authentication in this build.</p>
+    <button class="btn ghost small" id="backToLanding" style="margin-top:6px">← Back</button>
+  </div>
+</div>
+
+<header class="topbar hidden" id="appTop">
   <div class="brand">
     <span class="logo">✚</span>
     <div>
@@ -15,21 +50,22 @@
       <p class="tagline">स्वास्थ्य सेतु - your health, one bridge</p>
     </div>
   </div>
+  <div class="role-chip-row"><span id="roleChip" class="role-chip"></span><button id="switchRole" class="btn ghost small" type="button">Switch role</button></div>
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-tab="scan">📄 Read document</button>
-    <button class="tab" data-tab="timeline">🗂 Timeline</button>
-    <button class="tab" data-tab="reminders">💊 Reminders</button>
-    <button class="tab" data-tab="family">👨‍👩‍👧 Family</button>
-    <button class="tab" data-tab="emergency">🚨 Emergency card</button>
-    <button class="tab" data-tab="symptom">🩺 Symptom check</button>
-    <button class="tab" data-tab="appointments">📅 Appointments</button>
-    <button class="tab" data-tab="queue">🔢 Queue</button>
-    <button class="tab" data-tab="labprice">🧪 Lab prices <span class="demo-pill">demo</span></button>
-    <button class="tab" data-tab="hospital">🏥 Hospital <span class="demo-pill">demo</span></button>
+    <button class="tab active" data-tab="scan">Read document</button>
+    <button class="tab" data-tab="timeline">Timeline</button>
+    <button class="tab" data-tab="reminders">Reminders</button>
+    <button class="tab" data-tab="family">Family</button>
+    <button class="tab" data-tab="emergency">Emergency card</button>
+    <button class="tab" data-tab="symptom">Symptom check</button>
+    <button class="tab" data-tab="appointments">Appointments</button>
+    <button class="tab" data-tab="queue">Queue</button>
+    <button class="tab" data-tab="labprice">Lab prices <span class="demo-pill">demo</span></button>
+    <button class="tab" data-tab="hospital" data-role-tab="1">Hospital <span class="demo-pill">demo</span></button>
   </nav>
 </header>
 
-<main>
+<main id="appMain" class="hidden">
 <!-- ============ SCAN / AI READER ============ -->
 <section id="tab-scan" class="panel active">
   <div class="card">
@@ -165,10 +201,10 @@
 <section id="tab-hospital" class="panel">
   <div class="banner-demo">🏥 HOSPITAL-SIDE DASHBOARD - ALL DATA ON THIS TAB IS SIMULATED DEMO DATA, UPDATING LIVE FOR THE DEMO</div>
   <div class="hosp-nav">
-    <button class="hosp-tab active" data-hview="ward">🛏️ 3D Ward (live)</button>
-    <button class="hosp-tab" data-hview="family">👪 Family view (live vitals)</button>
-    <button class="hosp-tab" data-hview="carelog">💉 Medication & care log</button>
-    <button class="hosp-tab" data-hview="bill">🧾 Live bill</button>
+    <button class="hosp-tab active" data-hview="ward" data-staff="1">3D Ward (live)</button>
+    <button class="hosp-tab" data-hview="family" data-patient="1">Patient view (live vitals)</button>
+    <button class="hosp-tab" data-hview="carelog">Medication & care log</button>
+    <button class="hosp-tab" data-hview="bill">Live bill</button>
   </div>
 
   <div id="hview-ward" class="hview active">
@@ -212,6 +248,13 @@
     <div class="card">
       <h3>Medication & care log - whole ward <span class="live-dot"></span></h3>
       <p class="muted">Every entry the nursing staff records: time, patient, medicine/procedure, dose, route and note. New entries appear here live.</p>
+      <div id="careAddForm" class="formrow hidden">
+        <select id="caPatient" class="inp"></select>
+        <input id="caEntry" class="inp" placeholder="Medicine / procedure">
+        <input id="caDose" class="inp" style="max-width:110px" placeholder="Dose">
+        <select id="caRoute" class="inp"><option>Oral</option><option>IV</option><option>IM</option><option>Sublingual</option><option>Inhalation</option><option>Lab</option><option>Radiology</option><option>-</option></select>
+        <button class="btn primary small" id="caAdd">Record entry</button>
+      </div>
       <table class="tbl" id="careLogTable">
         <thead><tr><th>Time</th><th>Patient</th><th>Entry</th><th>Dose</th><th>Route</th><th>By</th></tr></thead>
         <tbody></tbody>

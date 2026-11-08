@@ -26,6 +26,7 @@ document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", (
   document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "tab-" + btn.dataset.tab));
   if (btn.dataset.tab === "timeline") renderTimeline();
   if (btn.dataset.tab === "queue") renderQueue();
+  if (btn.dataset.tab === "hospital") configureHospitalRole();
   if (btn.dataset.tab === "emergency") renderEcard();
   if (btn.dataset.tab === "reminders") renderReminders();
   if (btn.dataset.tab === "family") renderFamily();
@@ -652,13 +653,60 @@ $("vitalsAiBtn").addEventListener("click", async () => {
   } catch { box.textContent = "AI shift note (offline demo): ICU-5 S. Shaikh needs review first - heart rate above 100 with borderline SpO2; then P-3 K. Singh for low oxygen saturation. Others stable."; }
 });
 
+
+/* ---------------- roles & entry screens ---------------- */
+let role = store.get("role", null);
+function enterApp() {
+  $("screen-landing").classList.add("hidden");
+  $("screen-staff-login").classList.add("hidden");
+  $("appTop").classList.remove("hidden");
+  $("appMain").classList.remove("hidden");
+  $("roleChip").textContent = role === "staff" ? "Hospital staff portal" : "Patient & family portal";
+  const hospTabBtn = document.querySelector('.tab[data-tab="hospital"]');
+  hospTabBtn.innerHTML = role === "staff" ? 'Hospital HMS <span class="demo-pill">demo</span>' : 'Track admitted patient <span class="demo-pill">demo</span>';
+  document.querySelectorAll("#tabs .tab").forEach(b => {
+    b.style.display = (role === "staff" && b.dataset.tab !== "hospital") ? "none" : "";
+  });
+  if (!location.hash.slice(1) || !document.getElementById("tab-" + location.hash.slice(1)))
+    document.querySelector('.tab[data-tab="' + (role === "staff" ? "hospital" : "scan") + '"]').click();
+}
+function configureHospitalRole() {
+  const wardBtn = document.querySelector('.hosp-tab[data-hview="ward"]');
+  wardBtn.style.display = role === "staff" ? "" : "none";
+  $("careAddForm").classList.toggle("hidden", role !== "staff");
+  if (role === "staff") {
+    $("caPatient").innerHTML = PATIENTS.map(p => `<option value="${p.id}">${p.bed} · ${p.name}</option>`).join("");
+    if (!document.querySelector('.hosp-tab[data-hview="ward"]').classList.contains("active") &&
+        !document.querySelector('.hosp-tab[data-hview="carelog"]').classList.contains("active") &&
+        !document.querySelector('.hosp-tab[data-hview="bill"]').classList.contains("active"))
+      document.querySelector('.hosp-tab[data-hview="ward"]').click();
+  } else {
+    document.querySelector('.hosp-tab[data-hview="family"]').click();
+  }
+}
+$("enterPatient").addEventListener("click", () => { role = "patient"; store.set("role", role); enterApp(); });
+$("enterStaff").addEventListener("click", () => { $("screen-landing").classList.add("hidden"); $("screen-staff-login").classList.remove("hidden"); });
+$("backToLanding").addEventListener("click", () => { $("screen-staff-login").classList.add("hidden"); $("screen-landing").classList.remove("hidden"); });
+$("staffLoginBtn").addEventListener("click", () => { role = "staff"; store.set("role", role); store.set("staffId", $("staffId").value || "staff"); enterApp(); });
+$("switchRole").addEventListener("click", () => { role = null; store.set("role", null); $("appTop").classList.add("hidden"); $("appMain").classList.add("hidden"); $("screen-landing").classList.remove("hidden"); });
+$("caAdd").addEventListener("click", () => {
+  const entry = $("caEntry").value.trim(); if (!entry) return;
+  careLog.push({ t: nowHM(), pid: $("caPatient").value, entry, dose: $("caDose").value || "-", route: $("caRoute").value, by: (store.get("staffId", "Staff")) });
+  careLog = careLog.slice(-60);
+  $("caEntry").value = ""; $("caDose").value = "";
+  renderCareLog();
+});
+
 /* ---------------- init ---------------- */
+const roleParam = new URLSearchParams(location.search).get("role");
+if (roleParam === "patient" || roleParam === "staff") { role = roleParam; store.set("role", role); }
 refreshKeyStatus(); renderDoctors(); renderQueue(); renderLabPrices(); renderHospital(); renderFamily(); renderReminders();
 const h = location.hash.slice(1);
 if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
 if (new URLSearchParams(location.search).has("shot")) document.documentElement.classList.add("noanim");
 const hv = new URLSearchParams(location.search).get("hview");
 if (hv) { document.querySelector('.tab[data-tab="hospital"]').click(); const hb = document.querySelector(`.hosp-tab[data-hview="${hv}"]`); if (hb) hb.click(); }
+if (role) enterApp();
 if (new URLSearchParams(location.search).has("autodemo")) {
   (async () => {
     const kind = new URLSearchParams(location.search).get("autodemo") === "lab" ? "labreport" : "prescription";
