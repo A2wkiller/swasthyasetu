@@ -78,13 +78,21 @@ $("fileInput").addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
   downscale(f, d => { currentImage = d; $("preview").src = d.dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "📷 " + f.name; });
 });
+async function loadSampleDoc(url, kind) {
+  try {
+    const blob = await (await fetch(url)).blob();
+    return await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+  } catch (e) {
+    return SAMPLE_DOCS[kind];  // file:// or offline: use the embedded copy
+  }
+}
+
 $("sampleBtn").addEventListener("click", async () => {
   const kind = document.querySelector("input[name=doctype]:checked").value;
   const url = kind === "labreport" ? "samples/sample-lab-report.jpg" : "samples/sample-prescription.jpg";
-  const blob = await (await fetch(url)).blob();
-  const r = new FileReader();
-  r.onload = () => { currentImage = { dataUrl: r.result, b64: r.result.split(",")[1] }; $("preview").src = r.result; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "📷 sample document"; };
-  r.readAsDataURL(blob);
+  const dataUrl = await loadSampleDoc(url, kind === "labreport" ? "labreport" : "prescription");
+  currentImage = { dataUrl, b64: dataUrl.split(",")[1] };
+  $("preview").src = dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "📷 sample document";
 });
 
 const SCAN_PROMPT = `You are a careful Indian medical-document reading assistant. Read the attached document image (a doctor's prescription or a lab report from India, possibly handwritten).
@@ -813,6 +821,13 @@ refreshKeyStatus(); renderDoctors(); renderQueue(); renderLabPrices(); renderHos
 const h = location.hash.slice(1);
 if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
 if (new URLSearchParams(location.search).has("shot")) document.documentElement.classList.add("noanim");
+if (location.protocol === "file:") {
+  const nb = document.createElement("div");
+  nb.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99;background:#16211b;color:#cde9d6;font:13px/1.5 'DM Mono',monospace;padding:10px 16px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap";
+  nb.innerHTML = '<span>Opened as a file - the app works, but the 3D anatomy model needs a tiny local server: <b style="color:#fff">python3 serve.py</b> then open <b style="color:#fff">http://localhost:8000</b></span><button id="fileBannerX" style="background:none;border:1px solid #cde9d6;color:#cde9d6;border-radius:8px;padding:3px 10px;cursor:pointer">OK</button>';
+  document.body.appendChild(nb);
+  document.getElementById("fileBannerX").onclick = () => nb.remove();
+}
 if (role) enterApp();
 const hv = new URLSearchParams(location.search).get("hview");
 if (hv) { document.querySelector('.tab[data-tab="hospital"]').click(); const hb = document.querySelector(`.hosp-tab[data-hview="${hv}"]`); if (hb) hb.click(); }
@@ -825,9 +840,8 @@ if (new URLSearchParams(location.search).has("autodemo")) {
     const kind = new URLSearchParams(location.search).get("autodemo") === "lab" ? "labreport" : "prescription";
     document.querySelector(`input[name=doctype][value=${kind === "labreport" ? "labreport" : "prescription"}]`).checked = true;
     const url = kind === "labreport" ? "samples/sample-lab-report.jpg" : "samples/sample-prescription.jpg";
-    const blob = await (await fetch(url)).blob();
-    const r = new FileReader();
-    r.onload = () => { currentImage = { dataUrl: r.result, b64: r.result.split(",")[1] }; $("preview").src = r.result; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; renderScanResult(DEMO_RESULT(), true); };
-    r.readAsDataURL(blob);
+    const dataUrl = await loadSampleDoc(url, kind === "labreport" ? "labreport" : "prescription");
+    currentImage = { dataUrl, b64: dataUrl.split(",")[1] };
+    $("preview").src = dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; renderScanResult(DEMO_RESULT(), true);
   })();
 }

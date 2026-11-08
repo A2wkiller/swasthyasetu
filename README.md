@@ -7,18 +7,31 @@ doctor's prescription or lab report with AI (in English + Hindi), track medicine
 lab values over time, get medicine reminders, keep an emergency card with QR, and
 book/track appointments - including a peek at how a hospital dashboard could plug in.
 
-## Run it
+## Run it (pick one)
 
 ```bash
-# option A - with live AI reading (needs a BharatCode student API key):
-export BHARATCODE_API_KEY=sk-your-key
-python3 serve.py        # open http://localhost:8000
-
-# option B - open index.html directly in a browser.
-# Sample documents then run in demo mode (pre-computed results), or you can
-# paste a BharatCode key into the key box on the Scan tab (stored only in
-# your browser's localStorage).
+python3 serve.py        # then open http://localhost:8000
 ```
+
+That is the whole setup - Python 3 only, nothing to install. Everything works:
+both portals, the 3D anatomy model, and (with a key) live AI reading.
+
+**Or just double-click `index.html`.** The app works offline straight from the
+file system - sample documents, booking, queue, ward, all of it. The only things
+that need the little server are the 3D anatomy model (browsers block local 3D
+files) and the live AI proxy; a note at the bottom of the page reminds you.
+
+Any other static server (`npx serve`, `python3 -m http.server`, VS Code Live
+Server) also works - only the AI key proxy is specific to serve.py.
+
+**Live AI reading (optional):**
+```bash
+export BHARATCODE_API_KEY=sk-your-key   # BharatCode student key
+python3 serve.py
+```
+Or paste the key into the key box on the Scan tab (stored only in your
+browser's localStorage). With no key, sample documents show a pre-computed
+demo read so the flow is always demonstrable.
 
 ## Two portals, one app
 
