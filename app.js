@@ -265,7 +265,16 @@ setInterval(() => {
 }, 20000);
 
 /* ---------------- family ---------------- */
+function renderHomeActivity() {
+  const mins = 12 + Math.floor((Date.now() / 60000) % 50);
+  const okk = mins < 90;
+  $("homeActivity").innerHTML = `<div class="rem-row ${okk ? "" : "due"}"><strong>🏠 Aai (72), at home</strong>
+    <span>Last movement: ${mins} min ago (kitchen) · night sleep: 7h 10m, 2 wake-ups</span>
+    <span class="pill ${okk ? "ok" : "bad"}">${okk ? "normal" : "check on her"}</span>
+    <span class="demo-pill">simulated sensor feed</span></div>`;
+}
 function renderFamily() {
+  renderHomeActivity();
   $("familyList").innerHTML = profiles.map(p => `<div class="doc-card"><h4>${p.name} ${p.id === activeId ? '<span class="badge-active">active</span>' : ""}</h4><p class="muted small">Age: ${p.age || "—"} · Blood: ${p.blood || "—"}</p><div class="formrow"><button class="btn ghost small" onclick="switchProfile('${p.id}')">Switch</button>${profiles.length > 1 ? `<button class="btn small danger" onclick="delProfile('${p.id}')">Remove</button>` : ""}</div></div>`).join("");
 }
 window.switchProfile = (id) => { activeId = id; store.set("active", id); renderFamily(); };
@@ -417,12 +426,13 @@ window.bookSlot = (id, slot) => {
 function renderQueue() {
   const box = $("queueBox");
   if (!booking) { box.innerHTML = `<p class="muted">No active token. Book an appointment first (demo data).</p>`; return; }
-  const eta = booking.ahead * 8;
+  const eta = booking.ahead * 8 + Math.round(crowdCount / 6);
   const pct = Math.max(0, Math.min(100, 100 - booking.ahead * 16));
   box.innerHTML = `<p class="queue-token">${booking.doctor} · ${booking.hospital}<br>Token <strong>${booking.token}</strong> · Slot ${booking.slot}</p>
     <p class="queue-big">${booking.ahead > 0 ? booking.ahead + " patients ahead" : "Your turn now!"}</p>
     <div class="progress"><div style="width:${pct}%"></div></div>
     <p class="muted">Estimated wait: ~${eta} min ${booking.ahead <= 2 ? "· we will alert you when 2 patients are left" : ""}</p>
+    <p class="muted small">Waiting room now: <strong>${crowdCount} people</strong> <span class="demo-pill">simulated WiFi crowd count</span></p>
     <button class="btn ghost small" onclick="advanceQueue()">Simulate queue moving</button>
     <button class="btn danger small" onclick="cancelToken()">Cancel token</button>`;
 }
@@ -448,22 +458,22 @@ window.bookHomeSample = (lab, test, price) => {
 const NURSES = ["Nurse Asha", "Nurse Reema", "Nurse Joseph", "Dr. on rounds"];
 function mkBill(seed) { return seed.map(([t, item, amt]) => ({ t, item, amt })); }
 let PATIENTS = [
-  { id: "w1", xy3: [-4.2,-1.6], bed: "ICU-2", zone: "ICU", name: "R. Patil", age: 58, prob: "Post-surgery recovery", day: "Day 2", sys: 128, dia: 84, hr: 88, spo2: 97, temp: 98.6, xy: [70, 60],
+  { id: "w1", xy3: [-4.2,-1.6], brpm: 16, sleep: "sleeping", stillMin: 42, bed: "ICU-2", zone: "ICU", name: "R. Patil", age: 58, prob: "Post-surgery recovery", day: "Day 2", sys: 128, dia: 84, hr: 88, spo2: 97, temp: 98.6, xy: [70, 60],
     meds: [["Ceftriaxone", "1 g", "IV"], ["Paracetamol", "500 mg", "Oral"], ["Dressing change", "-", "-"]],
     bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:05", "Ceftriaxone 1 g IV", 340], ["09:30", "Doctor round", 800]]), log: [] },
-  { id: "w2", xy3: [-0.6,-1.6], bed: "ICU-5", zone: "ICU", name: "S. Shaikh", age: 63, prob: "Cardiac observation", day: "Day 1", sys: 150, dia: 96, hr: 104, spo2: 94, temp: 99.1, xy: [260, 60],
+  { id: "w2", xy3: [-0.6,-1.6], brpm: 21, sleep: "restless", stillMin: 9, bed: "ICU-5", zone: "ICU", name: "S. Shaikh", age: 63, prob: "Cardiac observation", day: "Day 1", sys: 150, dia: 96, hr: 104, spo2: 94, temp: 99.1, xy: [260, 60],
     meds: [["Sorbitrate", "5 mg", "Sublingual"], ["Atorvastatin", "20 mg", "Oral"], ["ECG recording", "-", "-"]],
     bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:20", "Cardiac monitor (hourly)", 250]]), log: [] },
-  { id: "w3", xy3: [3.6,-1.6], bed: "G-12", zone: "General", name: "M. Iyer", age: 34, prob: "Dengue fever", day: "Day 3", sys: 110, dia: 72, hr: 92, spo2: 98, temp: 100.4, xy: [450, 60],
+  { id: "w3", xy3: [3.6,-1.6], brpm: 18, sleep: "sleeping", stillMin: 67, bed: "G-12", zone: "General", name: "M. Iyer", age: 34, prob: "Dengue fever", day: "Day 3", sys: 110, dia: 72, hr: 92, spo2: 98, temp: 100.4, xy: [450, 60],
     meds: [["Paracetamol", "650 mg", "Oral"], ["ORS fluids", "500 ml", "Oral"], ["Platelet count test", "-", "Lab"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["07:45", "Platelet count", 350]]), log: [] },
-  { id: "w4", xy3: [-4.2,1.6], bed: "G-15", zone: "General", name: "A. Joshi", age: 27, prob: "Fracture - leg", day: "Day 4", sys: 118, dia: 78, hr: 76, spo2: 99, temp: 98.2, xy: [70, 200],
+  { id: "w4", xy3: [-4.2,1.6], brpm: 14, sleep: "awake", stillMin: 3, bed: "G-15", zone: "General", name: "A. Joshi", age: 27, prob: "Fracture - leg", day: "Day 4", sys: 118, dia: 78, hr: 76, spo2: 99, temp: 98.2, xy: [70, 200],
     meds: [["Aceclofenac", "100 mg", "Oral"], ["Calcium + D3", "1 tab", "Oral"], ["Physiotherapy", "20 min", "-"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["09:00", "Physiotherapy session", 500]]), log: [] },
-  { id: "w5", xy3: [-0.6,1.6], bed: "P-3", zone: "Private", name: "K. Singh", age: 45, prob: "Pneumonia", day: "Day 2", sys: 135, dia: 88, hr: 96, spo2: 93, temp: 100.1, xy: [260, 200],
+  { id: "w5", xy3: [-0.6,1.6], brpm: 22, sleep: "restless", stillMin: 14, bed: "P-3", zone: "Private", name: "K. Singh", age: 45, prob: "Pneumonia", day: "Day 2", sys: 135, dia: 88, hr: 96, spo2: 93, temp: 100.1, xy: [260, 200],
     meds: [["Azithromycin", "500 mg", "Oral"], ["Nebulisation", "2.5 mg", "Inhalation"], ["Chest X-ray", "-", "Radiology"]],
     bill: mkBill([["08:00", "Private room (today so far)", 3500], ["08:40", "Nebulisation", 200]]), log: [] },
-  { id: "w6", xy3: [3.6,1.6], bed: "G-18", zone: "General", name: "L. Verma", age: 71, prob: "COPD exacerbation", day: "Day 5", sys: 122, dia: 80, hr: 84, spo2: 95, temp: 98.8, xy: [450, 200],
+  { id: "w6", xy3: [3.6,1.6], brpm: 20, sleep: "sleeping", stillMin: 55, bed: "G-18", zone: "General", name: "L. Verma", age: 71, prob: "COPD exacerbation", day: "Day 5", sys: 122, dia: 80, hr: 84, spo2: 95, temp: 98.8, xy: [450, 200],
     meds: [["Budesonide neb", "0.5 mg", "Inhalation"], ["Oxygen support", "2 L/min", "-"], ["Theophylline", "200 mg", "Oral"]],
     bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["08:10", "Oxygen (per hr)", 120]]), log: [] }
 ];
@@ -517,6 +527,7 @@ function renderWard() {
     catch (e) { console.warn("ward3d failed", e); }
   }
   if (wardInited) Ward3D.sync(PATIENTS, wardSelected);
+  renderSensorAlerts();
   const p = pat(wardSelected), st = patStatus(p);
   $("wardPatient").innerHTML = `<h3>${p.bed} · ${p.name}</h3>
     <p class="muted">${p.prob} · ${p.day} · Age ${p.age} · ${p.zone}</p>
@@ -540,6 +551,7 @@ document.querySelectorAll(".hosp-tab").forEach(b => b.addEventListener("click", 
   if (b.dataset.hview === "family") renderFamView();
   if (b.dataset.hview === "bill") renderBill();
   if (b.dataset.hview === "carelog") renderCareLog();
+  if (b.dataset.hview === "night") renderNight();
 }));
 function syncSelectors() {
   $("famSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === famSelected ? "selected" : ""}>${p.bed} · ${p.name}</option>`).join("");
@@ -594,6 +606,11 @@ function renderFamView() {
   $("fvSpo2").textContent = Math.round(p.spo2);
   $("fvBp").textContent = Math.round(p.sys) + "/" + Math.round(p.dia);
   $("fvTemp").textContent = p.temp.toFixed(1);
+  const rf = $("fvRf");
+  if (p.zone === "ICU") { rf.classList.remove("hidden"); $("fvBrpm").textContent = p.brpm; }
+  else rf.classList.add("hidden");
+  const active = sensorAlerts.find(a => a.pid === p.id && Date.now() < (p.alertUntil || 0));
+  $("fvAlert").innerHTML = active ? `<div class="notice" style="border-color:var(--bad);background:var(--red-bg);color:var(--bad)"><strong>⚠ ${active.text}</strong> (${active.t}) - care team notified. <span class="demo-pill">simulated sensor feed</span></div>` : "";
   renderBody(p);
   const h = hrHist[p.id] = (hrHist[p.id] || []).concat(Math.round(p.hr)).slice(-40);
   const c = $("fvTrend"), ctx = c.getContext("2d");
@@ -608,6 +625,13 @@ function renderFamView() {
 }
 
 /* care log */
+function renderNight() {
+  const rows = PATIENTS.map(p => {
+    const stCol = p.sleep === "sleeping" ? "ok" : p.sleep === "restless" ? "warn" : "bad";
+    return `<tr><td>${p.bed}</td><td>${p.name}</td><td><span class="pill ${stCol}">${p.sleep}</span></td><td>${p.stillMin} min</td><td>${p.brpm} brpm</td><td>${p.sleep === "awake" && p.stillMin < 5 ? "at washroom / with nurse (simulated)" : p.stillMin > 60 ? "long stillness - check on rounds" : "normal"}</td></tr>`;
+  }).join("");
+  $("nightTable").querySelector("tbody").innerHTML = rows;
+}
 function renderCareLog() {
   $("careLogTable").querySelector("tbody").innerHTML = careLog.slice().reverse().map(l =>
     `<tr><td>${l.t}</td><td>${pat(l.pid).bed} · ${pat(l.pid).name}</td><td>${l.entry}</td><td>${l.dose}</td><td>${l.route}</td><td>${l.by}</td></tr>`).join("");
@@ -623,6 +647,36 @@ function renderBill() {
   if (lastBillTotal[p.id] !== undefined && total > lastBillTotal[p.id]) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   lastBillTotal[p.id] = total;
   $("billTable").querySelector("tbody").innerHTML = p.bill.slice().reverse().map((b, i) => `<tr class="${i === 0 ? "bill-new" : ""}"><td>${b.t}</td><td>${b.item}</td><td>₹${b.amt.toLocaleString("en-IN")}</td></tr>`).join("");
+}
+
+
+/* ---------------- simulated WiFi sensor feed (RuView-style; NO real hardware) ---------------- */
+let sensorAlerts = [];   // {t, pid, kind, text}
+let crowdCount = 17;     // simulated waiting-room WiFi count
+function sensorTick() {
+  // breathing rate drift (contactless feed)
+  for (const p of PATIENTS) p.brpm = Math.round(jitter(p.brpm, 1.4, 11, 26));
+  // rare fall / bed-exit events
+  if (Math.random() < 0.045) {
+    const p = PATIENTS[Math.floor(Math.random() * PATIENTS.length)];
+    const kind = Math.random() < 0.5 ? "fall-risk" : "bed-exit";
+    sensorAlerts.unshift({ t: nowHM(), pid: p.id, kind, text: kind === "fall-risk" ? "Fall-risk movement pattern detected" : "Patient left the bed unassisted" });
+    sensorAlerts = sensorAlerts.slice(0, 6);
+    p.alertUntil = Date.now() + 22000;
+  }
+  // crowd drift
+  crowdCount = Math.max(3, Math.min(46, crowdCount + Math.round((Math.random() - 0.5) * 5)));
+  if ($("tab-hospital").classList.contains("active")) {
+    renderSensorAlerts();
+    if ($("hview-night").classList.contains("active")) renderNight();
+  }
+  if ($("tab-queue").classList.contains("active")) renderQueue();
+}
+setInterval(sensorTick, 4000);
+function renderSensorAlerts() {
+  const box = $("wardAlerts"); if (!box) return;
+  box.innerHTML = sensorAlerts.length ? sensorAlerts.map(a =>
+    `<div class="sensor-alert ${Date.now() < (pat(a.pid).alertUntil || 0) ? "hot" : ""}"><strong>${a.t}</strong> ${pat(a.pid).bed} · ${a.text} <span class="demo-pill">simulated sensor feed</span></div>`).join("") : "";
 }
 
 /* simulation engine */

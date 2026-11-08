@@ -132,6 +132,7 @@
   <div class="card">
     <h2>Family profiles</h2>
     <p class="muted">Keep everyone's documents, reminders and emergency cards separate. The active profile is used across the app.</p>
+    <div id="homeActivity" style="margin-top:10px"></div>
     <div id="familyList" class="grid"></div>
     <h3>Add member</h3>
     <div class="formrow">
@@ -212,6 +213,7 @@
     <button class="hosp-tab" data-hview="ward" data-staff="1">3D Ward (live)</button>
     <button class="hosp-tab" data-hview="family">Patient view (live vitals)</button>
     <button class="hosp-tab" data-hview="carelog">Medication & care log</button>
+    <button class="hosp-tab" data-hview="night" data-staff="1">Night view (sleep)</button>
     <button class="hosp-tab" data-hview="bill">Live bill</button>
   </div>
 
@@ -223,6 +225,7 @@
     </div>
   </div>
   <div id="hview-ward" class="hview">
+    <div id="wardAlerts"></div>
     <div class="ward-layout">
       <div class="card ward-stage-card">
         <h3>Ward live preview <span class="live-dot"></span> <span class="muted small">click a bed to inspect the patient</span>
@@ -239,6 +242,7 @@
     <div class="card">
       <div class="formrow"><label class="small muted">Admitted patient:</label><select id="famSelect" class="inp"></select><span class="live-dot"></span><span class="small muted" id="fvUpdated"></span></div>
       <div id="fvHeader"></div>
+      <div id="fvAlert"></div>
       <div class="family-grid">
         <div class="vital-card body-card">
           <div class="vital-label">Live body view <span class="muted" style="text-transform:none">(animated, not diagnostic)</span></div>
@@ -249,6 +253,7 @@
         <div class="vital-card"><div class="vital-label">Heart rate</div><div class="vital-num" id="fvHr">–</div><div class="vital-unit">bpm</div><canvas id="fvEcg" width="250" height="56"></canvas></div>
         <div class="vital-card"><div class="vital-label">SpO₂</div><div class="vital-num" id="fvSpo2">–</div><div class="vital-unit">%</div></div>
         <div class="vital-card"><div class="vital-label">Blood pressure</div><div class="vital-num" id="fvBp">–</div><div class="vital-unit">mmHg</div></div>
+        <div class="vital-card hidden" id="fvRf"><div class="vital-label">Breathing (contactless)</div><div class="vital-num" id="fvBrpm">–</div><div class="vital-unit">brpm · WiFi sensing <span class="demo-pill">sim</span></div></div>
         <div class="vital-card"><div class="vital-label">Temperature</div><div class="vital-num" id="fvTemp">–</div><div class="vital-unit">°F</div></div>
         </div>
       </div>
@@ -256,6 +261,17 @@
       <canvas id="fvTrend" width="700" height="150" class="trend-canvas"></canvas>
       <h3>What the care team gave and did <span class="muted small">(nurse-recorded, visible to family)</span></h3>
       <div id="fvLog"></div>
+    </div>
+  </div>
+
+  <div id="hview-night" class="hview">
+    <div class="card">
+      <h3>Night view - sleep & stillness <span class="live-dot"></span> <span class="demo-pill">simulated sensor feed</span></h3>
+      <p class="muted">Contactless room sensing (RuView-style WiFi signals, simulated): sleep state, stillness time and breathing rate per room - no cameras, no wearables.</p>
+      <table class="tbl" id="nightTable">
+        <thead><tr><th>Bed</th><th>Patient</th><th>Sleep</th><th>Still for</th><th>Breathing</th><th>Note</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 

@@ -446,3 +446,10 @@ body.role-staff .sb-head { display: flex; gap: 10px; align-items: center; paddin
   body.role-staff #tab-hospital .banner-demo { grid-column: 1 / -1; }
   body.role-staff .hosp-nav { position: sticky; top: 130px; margin-bottom: 0; }
 }
+
+/* ---------- simulated sensor feed ---------- */
+.sensor-alert {
+  background: var(--red-bg); border: 1px solid #fca5a5; color: var(--bad); border-radius: 10px;
+  padding: 9px 12px; font-size: 13px; margin-bottom: 8px;
+}
+.sensor-alert.hot { animation: pulse 1.2s infinite; border-width: 2px; }
