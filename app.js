@@ -489,8 +489,29 @@ function renderStats() {
     ["Revenue today", "₹" + revenue.toLocaleString("en-IN"), "across " + PATIENTS.length + " admitted patients"]
   ].map(([l, v, sub]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-num">${v}</div><div class="stat-sub">${sub}</div></div>`).join("");
 }
-function renderWard() {
+function barChart(id, labels, values, color) {
+  const c = $(id); if (!c) return; const ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+  const max = Math.max(...values, 1), bw = c.width / values.length;
+  values.forEach((v, i) => {
+    const h = (v / max) * (c.height - 46), x = i * bw + bw * 0.22, w = bw * 0.56;
+    ctx.fillStyle = color; ctx.beginPath();
+    ctx.roundRect(x, c.height - 26 - h, w, h, 6); ctx.fill();
+    ctx.fillStyle = "#132a26"; ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(String(v), x + w / 2, c.height - 32 - h);
+    ctx.fillStyle = "#5f7470"; ctx.font = "11px sans-serif";
+    ctx.fillText(labels[i], x + w / 2, c.height - 8);
+  });
+}
+function renderDashboard() {
   renderStats();
+  const zones = {};
+  for (const p of PATIENTS) zones[p.zone] = (zones[p.zone] || 0) + 1;
+  barChart("chartCensus", Object.keys(zones), Object.values(zones), "#0d9488");
+  barChart("chartBill", PATIENTS.map(p => p.bed), PATIENTS.map(p => p.bill.reduce((x, b) => x + b.amt, 0)), "#0f766e");
+}
+function renderWard() {
+  renderDashboard();
   if (!wardInited) {
     try { Ward3D.init($("wardCanvas"), PATIENTS, id => selectWard(id)); wardInited = true; }
     catch (e) { console.warn("ward3d failed", e); }
@@ -627,6 +648,7 @@ function simTick() {
     if ($("hview-family").classList.contains("active")) renderFamView();
     if ($("hview-bill").classList.contains("active")) renderBill();
     if ($("hview-carelog").classList.contains("active")) renderCareLog();
+    if ($("hview-dashboard").classList.contains("active")) renderDashboard();
   }
 }
 setInterval(simTick, 2000);
@@ -688,12 +710,11 @@ function configureHospitalRole() {
   const wardBtn = document.querySelector('.hosp-tab[data-hview="ward"]');
   wardBtn.style.display = role === "staff" ? "" : "none";
   $("careAddForm").classList.toggle("hidden", role !== "staff");
+  document.body.classList.toggle("role-staff", role === "staff");
+  document.querySelectorAll(".hosp-tab[data-staff]").forEach(b => b.style.display = role === "staff" ? "" : "none");
   if (role === "staff") {
     $("caPatient").innerHTML = PATIENTS.map(p => `<option value="${p.id}">${p.bed} · ${p.name}</option>`).join("");
-    if (!document.querySelector('.hosp-tab[data-hview="ward"]').classList.contains("active") &&
-        !document.querySelector('.hosp-tab[data-hview="carelog"]').classList.contains("active") &&
-        !document.querySelector('.hosp-tab[data-hview="bill"]').classList.contains("active"))
-      document.querySelector('.hosp-tab[data-hview="ward"]').click();
+    document.querySelector('.hosp-tab[data-hview="dashboard"]').click();
   } else {
     document.querySelector('.hosp-tab[data-hview="family"]').click();
   }
