@@ -660,6 +660,7 @@ function sensorTick() {
   if (Math.random() < 0.045) {
     const p = PATIENTS[Math.floor(Math.random() * PATIENTS.length)];
     const kind = Math.random() < 0.5 ? "fall-risk" : "bed-exit";
+    if (sensorAlerts.some(a => a.pid === p.id && a.kind === kind)) return;
     sensorAlerts.unshift({ t: nowHM(), pid: p.id, kind, text: kind === "fall-risk" ? "Fall-risk movement pattern detected" : "Patient left the bed unassisted" });
     sensorAlerts = sensorAlerts.slice(0, 6);
     p.alertUntil = Date.now() + 22000;
@@ -793,9 +794,13 @@ refreshKeyStatus(); renderDoctors(); renderQueue(); renderLabPrices(); renderHos
 const h = location.hash.slice(1);
 if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
 if (new URLSearchParams(location.search).has("shot")) document.documentElement.classList.add("noanim");
+if (role) enterApp();
 const hv = new URLSearchParams(location.search).get("hview");
 if (hv) { document.querySelector('.tab[data-tab="hospital"]').click(); const hb = document.querySelector(`.hosp-tab[data-hview="${hv}"]`); if (hb) hb.click(); }
-if (role) enterApp();
+if (new URLSearchParams(location.search).has("demoseed")) {
+  if (!booking) { const d = DOCTORS[0]; booking = { doctor: d.name, spec: d.spec, hospital: d.hospital + ", " + d.area, fee: d.fee, slot: "Today 17:00", token: "T-241", ahead: 5 }; store.set("booking", booking); renderQueue(); }
+  if (!sensorAlerts.length) { const p = pat("w2"); p.alertUntil = Date.now() + 60000; sensorAlerts.unshift({ t: nowHM(), pid: "w2", kind: "bed-exit", text: "Patient left the bed unassisted" }); renderSensorAlerts(); if ($("hview-family").classList.contains("active")) renderFamView(); }
+}
 if (new URLSearchParams(location.search).has("autodemo")) {
   (async () => {
     const kind = new URLSearchParams(location.search).get("autodemo") === "lab" ? "labreport" : "prescription";
