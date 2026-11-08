@@ -105,7 +105,7 @@ $("readBtn").addEventListener("click", async () => {
   if (!currentImage) return;
   const btn = $("readBtn"); btn.disabled = true;
   let secs = 0; btn.textContent = "Reading with AI… 0s";
-  const tick = setInterval(() => { secs++; btn.textContent = `Reading with AI… ${secs}s (vision can take up to ~2 min)`; }, 1000);
+  const tick = setInterval(() => { secs++; btn.textContent = `Reading with AI… ${secs}s (shared model may be queued at busy times)`; }, 1000);
   try {
     let parsed, usedDemo = false;
     try {
