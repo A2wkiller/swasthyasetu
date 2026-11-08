@@ -19,3 +19,9 @@ SwasthyaSetu attribution notices
 
 4. Google DRACO decoder (vendor/draco) - Apache License 2.0.
    https://github.com/google/draco
+
+Fonts (SIL Open Font License 1.1):
+- Schibsted Grotesk (display) - Google Fonts
+- Instrument Sans (body) - Google Fonts
+- DM Mono (labels/tokens) - Google Fonts
+Self-hosted in vendor/fonts/.
