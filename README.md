@@ -20,6 +20,18 @@ python3 serve.py        # open http://localhost:8000
 # your browser's localStorage).
 ```
 
+## Two portals, one app
+
+- **Patient & family portal** (no sign-in): AI document reader, timeline, reminders,
+  family profiles, emergency card, symptom triage, Practo-style appointment booking,
+  live queue tracking, lab prices, and **Track admitted patient** - live vitals, 3D
+  anatomy view, nurse care log and the growing bill of an admitted family member.
+- **Hospital staff portal (HMS)** (demo staff sign-in, role-labeled): live 3D ward
+  (three.js, orbit, click-to-inspect), patient vitals, medication & care log with a
+  staff entry form (families see entries instantly), and live billing.
+Both portals run on the same shared simulated ward state, so a nurse entry or a new
+charge shows up on the family side within seconds.
+
 ## What is REAL vs DEMO in this build
 
 | Feature | Status |
