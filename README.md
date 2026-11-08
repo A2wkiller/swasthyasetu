@@ -30,9 +30,9 @@ python3 serve.py        # open http://localhost:8000
 | Family profiles | **Real** - on-device. |
 | Emergency card + QR | **Real** - QR encodes the card text offline (qrcode.js, vendored). |
 | Symptom pre-check | **Real, rule-based** - red-flag escalation + specialty suggestion. Triage only, never a diagnosis. |
-| Appointment booking + queue tracker | **Demo** - simulated doctors, slots and tokens; shows the intended flow. |
+| Appointment booking + queue tracker | **Demo** - Practo/BookMyShow-style doctor discovery (ratings, fees, availability), day/slot picker, ticket with QR token, live queue. Simulated data. |
 | Lab price compare + home sample | **Demo** - illustrative prices, not live lab rates. |
-| Hospital dashboard (beds, vitals, billing) | **Demo** - simulated data; vitals drift on a timer. The AI shift-note button uses the real model when a key is available. |
+| Hospital dashboard | **Demo, live-simulated** - isometric 3D ward with status-colored beds that update every 2 s; family view with live vitals, ECG sweep, HR trend, animated body view (original SVG; heart pulses at the patient's live HR); nurse medication/care log posted live; itemized bill that grows as charges post. The AI shift-note button uses the real model when a key is available. |
 
 ## Privacy and safety
 
@@ -44,7 +44,7 @@ python3 serve.py        # open http://localhost:8000
 
 Vanilla HTML/CSS/JS single-page app (no build step), `serve.py` (Python stdlib) as a
 static server + `/api/responses` proxy so the API key never ships in the browser.
-QR: vendored qrcodejs (MIT). AI: BharatCode `qwen-3.8-27b` vision model via the
+QR: vendored qrcodejs (MIT). The animated anatomy view is original SVG work inspired by open anatomy projects (Z-Anatomy is Unity/CC-BY-SA and too heavy to embed, so no assets were copied). AI: BharatCode `qwen-3.8-27b` vision model via the
 OpenAI-compatible Responses API.
 
 ## Files

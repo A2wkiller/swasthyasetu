@@ -326,30 +326,91 @@ $("symGo").addEventListener("click", () => {
   $("symResult").innerHTML = h;
 });
 
-/* ---------------- appointments + queue (demo data) ---------------- */
+/* ---------------- appointments + queue (demo data, Practo/BookMyShow style) ---------------- */
 const DOCTORS = [
-  { id: "d1", name: "Dr. Sneha Kulkarni", spec: "General Physician", hospital: "CityCare Hospital, Pune", fee: 500, slots: ["09:00", "09:30", "10:00", "17:00", "17:30", "18:00"], taken: ["09:00", "09:30"] },
-  { id: "d2", name: "Dr. Arjun Mehta", spec: "Cardiologist", hospital: "Ruby Hall Clinic, Pune", fee: 1200, slots: [], taken: [] },
-  { id: "d3", name: "Dr. Priya Nair", spec: "Endocrinologist (thyroid, diabetes)", hospital: "CityCare Hospital, Pune", fee: 900, slots: ["11:00", "11:30", "19:00", "19:30"], taken: ["11:00"] },
-  { id: "d4", name: "Dr. Rohan Deshmukh", spec: "Orthopedic", hospital: "Jehangir Hospital, Pune", fee: 800, slots: ["08:00", "08:30", "21:00", "21:30"], taken: [] }
+  { id: "d1", name: "Dr. Sneha Kulkarni", spec: "General Physician", specKey: "physician", hospital: "CityCare Hospital", area: "FC Road, Pune", dist: "2.1 km", exp: 12, rating: 4.8, stories: 412, fee: 500, avail: "today", color: "#0d9488",
+    days: { Today: { Morning: [["09:00", 1], ["09:30", 1], ["10:00", 0], ["11:15", 0]], Evening: [["17:00", 0], ["17:30", 0], ["18:00", 0]] }, Tomorrow: { Morning: [["08:30", 0], ["09:00", 0], ["10:30", 0]], Evening: [["17:00", 0], ["18:30", 0]] } } },
+  { id: "d2", name: "Dr. Arjun Mehta", spec: "Cardiologist", specKey: "cardio", hospital: "Ruby Hall Clinic", area: "Sassoon Road, Pune", dist: "4.6 km", exp: 19, rating: 4.9, stories: 687, fee: 1200, avail: "tomorrow", color: "#7c3aed",
+    days: { Today: {}, Tomorrow: { Morning: [["07:30", 0], ["08:00", 0]], Night: [["21:00", 0], ["21:30", 0]] } } },
+  { id: "d3", name: "Dr. Priya Nair", spec: "Endocrinologist", specKey: "endo", hospital: "CityCare Hospital", area: "FC Road, Pune", dist: "2.1 km", exp: 9, rating: 4.7, stories: 238, fee: 900, avail: "today", color: "#0369a1",
+    days: { Today: { Morning: [["11:00", 1], ["11:30", 0]], Evening: [["19:00", 0], ["19:30", 0]] }, Tomorrow: { Morning: [["10:00", 0], ["10:30", 0]], Evening: [["18:00", 0]] } } },
+  { id: "d4", name: "Dr. Rohan Deshmukh", spec: "Orthopedic", specKey: "ortho", hospital: "Jehangir Hospital", area: "Bund Garden, Pune", dist: "5.3 km", exp: 15, rating: 4.6, stories: 355, fee: 800, avail: "today", color: "#b45309",
+    days: { Today: { Morning: [["08:00", 0], ["08:30", 0]], Night: [["21:00", 0], ["21:30", 0]] }, Tomorrow: { Morning: [["08:00", 0], ["09:00", 1]], Evening: [["20:30", 0]] } } }
 ];
-function renderDoctors() {
-  $("doctorList").innerHTML = DOCTORS.map(d => `<div class="doc-card"><h4>${d.name}</h4><p class="muted small">${d.spec}<br>${d.hospital} · ₹${d.fee}</p><button class="btn primary small" onclick="pickDoctor('${d.id}')">${d.slots.filter(s => !d.taken.includes(s)).length ? "View slots" : "Unavailable today"}</button></div>`).join("");
+const SPEC_FILTERS = [["all", "All"], ["physician", "General Physician"], ["cardio", "Cardiologist"], ["endo", "Endocrinologist"], ["ortho", "Orthopedic"]];
+let apptFilter = "all", apptQuery = "";
+function initials(name) { return name.replace("Dr. ", "").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase(); }
+function nextSlot(d) {
+  for (const [day, groups] of Object.entries(d.days)) for (const slots of Object.values(groups)) {
+    const free = slots.find(s => !s[1]); if (free) return day + " " + free[0];
+  }
+  return null;
 }
+function renderDoctors() {
+  $("apptChips").innerHTML = SPEC_FILTERS.map(([k, label]) => `<button class="appt-chip ${apptFilter === k ? "active" : ""}" onclick="setApptFilter('${k}')">${label}</button>`).join("");
+  const q = apptQuery.toLowerCase();
+  const list = DOCTORS.filter(d => (apptFilter === "all" || d.specKey === apptFilter) && (!q || (d.name + d.spec + d.hospital + d.area).toLowerCase().includes(q)));
+  $("doctorList").innerHTML = list.length ? list.map(d => {
+    const ns = nextSlot(d);
+    return `<div class="doc-row">
+      <div class="doc-avatar" style="background:${d.color}">${initials(d.name)}</div>
+      <div class="doc-mid">
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-sub">${d.spec} · ${d.exp} yrs exp</div>
+        <div class="doc-sub">${d.hospital}, ${d.area} · ${d.dist}</div>
+        <div class="doc-meta"><span class="doc-rating">★ ${d.rating}</span><span class="muted small">${d.stories} patient stories</span></div>
+      </div>
+      <div class="doc-right">
+        <div class="doc-fee">₹${d.fee}</div>
+        <div class="doc-avail ${d.avail === "today" ? "now" : "later"}">${d.avail === "today" ? "Available Today" : "Next: Tomorrow"}</div>
+        ${ns ? `<div class="muted small">Earliest: ${ns}</div>` : ""}
+        <button class="btn primary small" onclick="pickDoctor('${d.id}')">Book</button>
+      </div>
+    </div>`;
+  }).join("") : `<p class="muted" style="margin-top:14px">No doctors match - try another specialty or search.</p>`;
+}
+window.setApptFilter = k => { apptFilter = k; renderDoctors(); };
+$("apptQuery").addEventListener("input", e => { apptQuery = e.target.value; renderDoctors(); });
+let pickState = { id: null, day: "Today" };
 window.pickDoctor = (id) => {
-  const d = DOCTORS.find(x => x.id === id);
+  pickState = { id, day: "Today" };
   $("slotBox").classList.remove("hidden");
-  $("slotTitle").textContent = d.name + " - today's slots";
-  const free = d.slots.filter(s => !d.taken.includes(s));
-  $("slots").innerHTML = d.slots.length ? d.slots.map(s => `<button class="slot ${d.taken.includes(s) ? "taken" : ""}" ${d.taken.includes(s) ? "disabled" : ""} onclick="bookSlot('${id}','${s}')">${s}</button>`).join("") : "";
-  $("reschedule").classList.toggle("hidden", !!free.length);
-  if (!free.length) $("reschedule").innerHTML = `<strong>${d.name} has no slots today.</strong> Suggested next-day options: <button class="slot" onclick="bookSlot('${id}','Tomorrow 07:30')">Tomorrow 07:30 (early morning)</button> <button class="slot" onclick="bookSlot('${id}','Tomorrow 21:00')">Tomorrow 21:00 (night)</button>`;
+  renderSlotPicker();
+  $("slotBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
 };
+window.setPickDay = day => { pickState.day = day; renderSlotPicker(); };
+function renderSlotPicker() {
+  const d = DOCTORS.find(x => x.id === pickState.id);
+  $("slotTitle").textContent = d.name + " · " + d.hospital;
+  const days = Object.keys(d.days);
+  $("dayChips").innerHTML = days.map(day => `<button class="day-chip ${pickState.day === day ? "active" : ""}" onclick="setPickDay('${day}')">${day}</button>`).join("");
+  const groups = d.days[pickState.day] || {};
+  const html = Object.entries(groups).map(([label, slots]) => `<div class="slot-group"><div class="slot-group-label">${label}</div><div class="slots">${slots.map(([t, taken]) => `<button class="slot ${taken ? "taken" : ""}" ${taken ? "disabled" : ""} onclick="bookSlot('${d.id}','${pickState.day} ${t}')">${t}</button>`).join("")}</div></div>`).join("");
+  $("slots").innerHTML = html;
+  const anyFree = Object.values(groups).flat().some(s => !s[1]);
+  $("reschedule").classList.toggle("hidden", anyFree || pickState.day !== "Today");
+  if (!anyFree && pickState.day === "Today") {
+    const tmr = d.days.Tomorrow || {};
+    const sug = Object.entries(tmr).flatMap(([, ss]) => ss.filter(s => !s[1]).map(s => s[0])).slice(0, 3);
+    $("reschedule").innerHTML = `<strong>No slots today with ${d.name}.</strong> Earliest tomorrow: ` + (sug.length ? sug.map(t => `<button class="slot" onclick="bookSlot('${d.id}','Tomorrow ${t}')">${t}</button>`).join(" ") : "none - try another doctor");
+  }
+}
 window.bookSlot = (id, slot) => {
   const d = DOCTORS.find(x => x.id === id);
-  booking = { doctor: d.name, spec: d.spec, hospital: d.hospital, fee: d.fee, slot, token: "T-" + (100 + Math.floor(Math.random() * 900)), ahead: 4 + Math.floor(Math.random() * 4) };
+  booking = { doctor: d.name, spec: d.spec, hospital: d.hospital + ", " + d.area, fee: d.fee, slot, token: "T-" + (100 + Math.floor(Math.random() * 900)), ahead: 4 + Math.floor(Math.random() * 4) };
   store.set("booking", booking);
-  $("bookingConfirm").innerHTML = `<div class="confirm-card"><strong>✅ Booked (demo)</strong><br>${d.name} · ${d.spec}<br>${d.hospital}<br>Slot: <strong>${slot}</strong> · Token: <strong>${booking.token}</strong> · Fee: ₹${d.fee}<br><span class="muted small">Track your turn in the Queue tab.</span></div>`;
+  $("bookingConfirm").innerHTML = `<div class="ticket">
+    <div class="ticket-head"><span class="ticket-check">✓</span> Appointment booked <span class="demo-pill">demo</span></div>
+    <div class="ticket-body">
+      <div><div class="doc-name">${d.name}</div><div class="doc-sub">${d.spec} · ${d.hospital}, ${d.area}</div></div>
+      <div class="ticket-row"><span>Slot</span><strong>${slot}</strong></div>
+      <div class="ticket-row"><span>Token</span><strong class="ticket-token">${booking.token}</strong></div>
+      <div class="ticket-row"><span>Fee</span><strong>₹${d.fee} <span class="muted small">(pay at clinic)</span></strong></div>
+      <div class="ticket-qr" id="ticketQr"></div>
+    </div>
+    <div class="ticket-foot">Show the token at reception · Track your turn live in the Queue tab</div>
+  </div>`;
+  if (window.QRCode) new QRCode($("ticketQr"), { text: `SwasthyaSetu booking ${booking.token} | ${d.name} | ${slot}`, width: 110, height: 110 });
   renderQueue();
 };
 function renderQueue() {
@@ -382,33 +443,203 @@ window.bookHomeSample = (lab, test, price) => {
   $("labBooked").innerHTML = `<div class="confirm-card"><strong>✅ Home sample collection booked (demo)</strong><br>${test} at ${lab} · ₹${price}<br>Collection: tomorrow 7-9 AM. Pay after sample collection.</div>`;
 };
 
-/* ---------------- hospital dashboard (demo) ---------------- */
-const BEDS = [["ICU", 4, 10], ["General ward", 38, 60], ["Private rooms", 6, 20]];
+/* ---------------- hospital: live 3D ward + family view + live bill + care log (demo) ---------------- */
+const NURSES = ["Nurse Asha", "Nurse Reema", "Nurse Joseph", "Dr. on rounds"];
+function mkBill(seed) { return seed.map(([t, item, amt]) => ({ t, item, amt })); }
 let PATIENTS = [
-  { bed: "ICU-2", name: "R. Patil", prob: "Post-surgery recovery", bp: [128, 84], hr: 88, spo2: 97 },
-  { bed: "ICU-5", name: "S. Shaikh", prob: "Cardiac observation", bp: [150, 96], hr: 104, spo2: 94 },
-  { bed: "G-12", name: "M. Iyer", prob: "Dengue fever", bp: [110, 72], hr: 92, spo2: 98 },
-  { bed: "G-15", name: "A. Joshi", prob: "Fracture - leg", bp: [118, 78], hr: 76, spo2: 99 },
-  { bed: "P-3", name: "K. Singh", prob: "Pneumonia", bp: [135, 88], hr: 96, spo2: 93 }
+  { id: "w1", bed: "ICU-2", zone: "ICU", name: "R. Patil", age: 58, prob: "Post-surgery recovery", day: "Day 2", sys: 128, dia: 84, hr: 88, spo2: 97, temp: 98.6, xy: [70, 60],
+    meds: [["Ceftriaxone", "1 g", "IV"], ["Paracetamol", "500 mg", "Oral"], ["Dressing change", "-", "-"]],
+    bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:05", "Ceftriaxone 1 g IV", 340], ["09:30", "Doctor round", 800]]), log: [] },
+  { id: "w2", bed: "ICU-5", zone: "ICU", name: "S. Shaikh", age: 63, prob: "Cardiac observation", day: "Day 1", sys: 150, dia: 96, hr: 104, spo2: 94, temp: 99.1, xy: [260, 60],
+    meds: [["Sorbitrate", "5 mg", "Sublingual"], ["Atorvastatin", "20 mg", "Oral"], ["ECG recording", "-", "-"]],
+    bill: mkBill([["08:00", "ICU room charge (today so far)", 4200], ["08:20", "Cardiac monitor (hourly)", 250]]), log: [] },
+  { id: "w3", bed: "G-12", zone: "General", name: "M. Iyer", age: 34, prob: "Dengue fever", day: "Day 3", sys: 110, dia: 72, hr: 92, spo2: 98, temp: 100.4, xy: [450, 60],
+    meds: [["Paracetamol", "650 mg", "Oral"], ["ORS fluids", "500 ml", "Oral"], ["Platelet count test", "-", "Lab"]],
+    bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["07:45", "Platelet count", 350]]), log: [] },
+  { id: "w4", bed: "G-15", zone: "General", name: "A. Joshi", age: 27, prob: "Fracture - leg", day: "Day 4", sys: 118, dia: 78, hr: 76, spo2: 99, temp: 98.2, xy: [70, 200],
+    meds: [["Aceclofenac", "100 mg", "Oral"], ["Calcium + D3", "1 tab", "Oral"], ["Physiotherapy", "20 min", "-"]],
+    bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["09:00", "Physiotherapy session", 500]]), log: [] },
+  { id: "w5", bed: "P-3", zone: "Private", name: "K. Singh", age: 45, prob: "Pneumonia", day: "Day 2", sys: 135, dia: 88, hr: 96, spo2: 93, temp: 100.1, xy: [260, 200],
+    meds: [["Azithromycin", "500 mg", "Oral"], ["Nebulisation", "2.5 mg", "Inhalation"], ["Chest X-ray", "-", "Radiology"]],
+    bill: mkBill([["08:00", "Private room (today so far)", 3500], ["08:40", "Nebulisation", 200]]), log: [] },
+  { id: "w6", bed: "G-18", zone: "General", name: "L. Verma", age: 71, prob: "COPD exacerbation", day: "Day 5", sys: 122, dia: 80, hr: 84, spo2: 95, temp: 98.8, xy: [450, 200],
+    meds: [["Budesonide neb", "0.5 mg", "Inhalation"], ["Oxygen support", "2 L/min", "-"], ["Theophylline", "200 mg", "Oral"]],
+    bill: mkBill([["08:00", "General ward bed (today so far)", 1500], ["08:10", "Oxygen (per hr)", 120]]), log: [] }
 ];
-function jitter(v, amt, lo, hi) { return Math.max(lo, Math.min(hi, v + Math.round((Math.random() - 0.5) * amt))); }
-function renderHospital() {
-  $("beds").innerHTML = BEDS.map(([label, free, total]) => { const pct = Math.round(free / total * 100); return `<div class="bar-row"><div class="small"><strong>${label}</strong>: ${free}/${total} free</div><div class="bar-track"><div class="bar-fill ${pct < 20 ? "low" : ""}" style="width:${pct}%"></div></div></div>`; }).join("");
-  const tbody = $("vitalsTable").querySelector("tbody");
-  tbody.innerHTML = PATIENTS.map(p => {
-    const bad = p.hr > 100 || p.spo2 < 95 || p.bp[0] > 140;
-    return `<tr><td>${p.bed}</td><td>${p.name}</td><td>${p.prob}</td><td>${p.bp[0]}/${p.bp[1]}</td><td>${p.hr}</td><td>${p.spo2}%</td><td><span class="pill ${bad ? "bad" : "ok"}">${bad ? "⚠ review" : "stable"}</span></td></tr>`;
-  }).join("");
-  $("billing").innerHTML = `<table class="med-table"><tbody>
-    <tr><td>Room charges (3 days)</td><td>₹9,000</td></tr><tr><td>Doctor visits</td><td>₹2,500</td></tr>
-    <tr><td>Medicines</td><td>₹3,150</td></tr><tr><td>Lab tests</td><td>₹1,800</td></tr>
-    <tr><td><strong>Total</strong></td><td><strong>₹16,450</strong></td></tr></tbody></table>
-    <div class="formrow" style="margin-top:8px"><button class="btn primary small" onclick="alert('Demo payment - no real money moves.')">Pay bill (demo)</button></div>`;
+let careLog = [];
+let wardSelected = "w2", famSelected = "w2", billSelected = "w2";
+const pat = id => PATIENTS.find(p => p.id === id);
+function patStatus(p) { return (p.hr > 110 || p.spo2 < 92) ? "critical" : (p.hr > 100 || p.spo2 < 95 || p.sys > 140) ? "review" : "stable"; }
+function jitter(v, amt, lo, hi) { return Math.max(lo, Math.min(hi, v + (Math.random() - 0.5) * amt)); }
+function nowHM() { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+
+/* 3D ward */
+function renderWard() {
+  const fl = $("ward3d");
+  fl.innerHTML = PATIENTS.map(p => {
+    const st = patStatus(p);
+    return `<div class="bed3d st-${st} ${p.id === wardSelected ? "sel" : ""}" style="left:${p.xy[0]}px;top:${p.xy[1]}px" onclick="selectWard('${p.id}')">
+      <div class="bed-frame"></div><div class="bed-mattress"></div>
+      <div class="bed-patient"></div><div class="bed-tag">${p.bed}</div>
+      ${st !== "stable" ? '<div class="bed-alarm"></div>' : ""}
+    </div>`;
+  }).join("") + `<div class="ward-label wc-icu">ICU</div><div class="ward-label wc-g">GENERAL WARD</div><div class="ward-label wc-p">PRIVATE</div>`;
+  const p = pat(wardSelected), st = patStatus(p);
+  $("wardPatient").innerHTML = `<h3>${p.bed} · ${p.name}</h3>
+    <p class="muted">${p.prob} · ${p.day} · Age ${p.age} · ${p.zone}</p>
+    <p><span class="pill ${st === "stable" ? "ok" : st === "review" ? "warn" : "bad"}">${st}</span> <span class="live-dot"></span></p>
+    <table class="tbl" style="margin-top:8px"><tbody>
+      <tr><td>Heart rate</td><td><strong>${Math.round(p.hr)} bpm</strong></td></tr>
+      <tr><td>SpO₂</td><td><strong>${Math.round(p.spo2)}%</strong></td></tr>
+      <tr><td>BP</td><td><strong>${Math.round(p.sys)}/${Math.round(p.dia)} mmHg</strong></td></tr>
+      <tr><td>Temp</td><td><strong>${p.temp.toFixed(1)} °F</strong></td></tr>
+      <tr><td>Bill so far today</td><td><strong>₹${p.bill.reduce((s, b) => s + b.amt, 0).toLocaleString("en-IN")}</strong></td></tr>
+    </tbody></table>
+    <div class="formrow" style="margin-top:10px"><button class="btn primary small" onclick="gotoFamily('${p.id}')">Open family view</button></div>`;
 }
-setInterval(() => { for (const p of PATIENTS) { p.hr = jitter(p.hr, 6, 60, 122); p.spo2 = jitter(p.spo2, 2, 90, 100); } if ($("tab-hospital").classList.contains("active")) renderHospital(); }, 5000);
+window.selectWard = id => { wardSelected = id; renderWard(); };
+window.gotoFamily = id => { famSelected = id; billSelected = id; syncSelectors(); document.querySelector('.hosp-tab[data-hview="family"]').click(); };
+
+/* sub-view nav */
+document.querySelectorAll(".hosp-tab").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".hosp-tab").forEach(x => x.classList.toggle("active", x === b));
+  document.querySelectorAll(".hview").forEach(v => v.classList.toggle("active", v.id === "hview-" + b.dataset.hview));
+  if (b.dataset.hview === "family") renderFamView();
+  if (b.dataset.hview === "bill") renderBill();
+  if (b.dataset.hview === "carelog") renderCareLog();
+}));
+function syncSelectors() {
+  $("famSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === famSelected ? "selected" : ""}>${p.bed} · ${p.name}</option>`).join("");
+  $("billSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === billSelected ? "selected" : ""}>${p.bed} · ${p.name}</option>`).join("");
+}
+$("famSelect").addEventListener("change", e => { famSelected = e.target.value; renderFamView(); });
+$("billSelect").addEventListener("change", e => { billSelected = e.target.value; renderBill(); });
+
+/* family view */
+let hrHist = {}; // id -> array of hr
+/* Animated body view: original lightweight SVG, inspired by the technique of
+   open 3D anatomy projects (Z-Anatomy is Unity/CC-BY-SA, too heavy to embed). */
+function renderBody(p) {
+  const beat = (60 / Math.max(40, p.hr)).toFixed(2); // seconds per heartbeat
+  const spo2Col = p.spo2 < 94 ? "#ef4444" : p.spo2 < 96 ? "#f59e0b" : "#38bdf8";
+  $("fvBody").innerHTML = `<svg viewBox="0 0 200 260" class="body-svg" aria-label="animated body view">
+    <g class="body-outline">
+      <circle cx="100" cy="30" r="18"/>
+      <path d="M78 52 Q100 44 122 52 L128 96 Q130 118 124 138 L120 180 L124 236 Q124 248 114 248 L108 248 L104 186 L96 186 L92 248 L86 248 Q76 248 76 236 L80 180 L76 138 Q70 118 72 96 Z"/>
+      <path d="M76 60 Q58 76 56 104 Q55 122 62 130 L70 126 Q64 112 66 96 L74 72 Z"/>
+      <path d="M124 60 Q142 76 144 104 Q145 122 138 130 L130 126 Q136 112 134 96 L126 72 Z"/>
+    </g>
+    <g class="lungs" style="animation-duration:3.4s">
+      <ellipse cx="88" cy="88" rx="12" ry="17" fill="${spo2Col}" opacity=".75"/>
+      <ellipse cx="112" cy="88" rx="12" ry="17" fill="${spo2Col}" opacity=".75"/>
+    </g>
+    <g transform="translate(100 108)"><path class="heart-beat" style="animation-duration:${beat}s"
+      d="M0 6 C-1 0 -8 -4 -13 0 C-19 5 -14 14 0 24 C14 14 19 5 13 0 C8 -4 1 0 0 6 Z" fill="#ef4444"/></g>
+    <g class="body-labels">
+      <text x="150" y="92" class="bl">SpO₂ ${Math.round(p.spo2)}%</text>
+      <text x="140" y="122" class="bl">♥ ${Math.round(p.hr)} bpm</text>
+      <text x="6" y="196" class="bl">${p.temp.toFixed(1)} °F</text>
+    </g>
+  </svg>`;
+}
+function renderFamView() {
+  const p = pat(famSelected); if (!p) return;
+  const st = patStatus(p);
+  $("fvHeader").innerHTML = `<h2 style="margin-top:4px">${p.name} <span class="muted" style="font-size:14px;font-weight:400">· ${p.bed}, ${p.zone} · ${p.prob} · ${p.day}</span></h2>
+    <span class="pill ${st === "stable" ? "ok" : st === "review" ? "warn" : "bad"}">${st}</span>`;
+  $("fvUpdated").textContent = "updated " + nowHM() + ":" + String(new Date().getSeconds()).padStart(2, "0");
+  $("fvHr").textContent = Math.round(p.hr);
+  $("fvSpo2").textContent = Math.round(p.spo2);
+  $("fvBp").textContent = Math.round(p.sys) + "/" + Math.round(p.dia);
+  $("fvTemp").textContent = p.temp.toFixed(1);
+  renderBody(p);
+  const h = hrHist[p.id] = (hrHist[p.id] || []).concat(Math.round(p.hr)).slice(-40);
+  const c = $("fvTrend"), ctx = c.getContext("2d");
+  ctx.clearRect(0, 0, c.width, c.height);
+  const min = Math.min(...h, 60), max = Math.max(...h, 110);
+  ctx.strokeStyle = "#0d9488"; ctx.lineWidth = 2; ctx.beginPath();
+  h.forEach((v, i) => { const x = 10 + i * ((c.width - 20) / 39), y = c.height - 15 - ((v - min) / (max - min)) * (c.height - 30); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+  ctx.stroke();
+  ctx.fillStyle = "#5f7470"; ctx.font = "11px sans-serif"; ctx.fillText(min + " bpm", 10, c.height - 3); ctx.fillText(max + " bpm", 10, 12);
+  const mine = careLog.filter(l => l.pid === p.id).slice(-8).reverse();
+  $("fvLog").innerHTML = mine.length ? mine.map(l => `<div class="rem-row"><strong>${l.t}</strong> <span>${l.entry}${l.dose !== "-" ? " - " + l.dose : ""}</span> <span class="pill ok">${l.route}</span> <span class="muted small">${l.by}</span></div>`).join("") : `<p class="muted">No entries yet - they appear as the care team records them.</p>`;
+}
+
+/* care log */
+function renderCareLog() {
+  $("careLogTable").querySelector("tbody").innerHTML = careLog.slice().reverse().map(l =>
+    `<tr><td>${l.t}</td><td>${pat(l.pid).bed} · ${pat(l.pid).name}</td><td>${l.entry}</td><td>${l.dose}</td><td>${l.route}</td><td>${l.by}</td></tr>`).join("");
+}
+
+/* live bill */
+let lastBillTotal = {};
+function renderBill() {
+  const p = pat(billSelected); if (!p) return;
+  const total = p.bill.reduce((s, b) => s + b.amt, 0);
+  const el = $("billTotal");
+  el.textContent = "₹" + total.toLocaleString("en-IN");
+  if (lastBillTotal[p.id] !== undefined && total > lastBillTotal[p.id]) { el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  lastBillTotal[p.id] = total;
+  $("billTable").querySelector("tbody").innerHTML = p.bill.slice().reverse().map((b, i) => `<tr class="${i === 0 ? "bill-new" : ""}"><td>${b.t}</td><td>${b.item}</td><td>₹${b.amt.toLocaleString("en-IN")}</td></tr>`).join("");
+}
+
+/* simulation engine */
+const CHARGES = [["Medicine - ward pharmacy", 120, 260], ["Consumables (syringe, line)", 60, 140], ["Nursing care (2 hr block)", 150, 150], ["Monitor usage (hourly)", 250, 250], ["Doctor visit", 500, 800], ["Lab - repeat test", 300, 550], ["Oxygen (per hr)", 120, 120]];
+function simTick() {
+  for (const p of PATIENTS) {
+    p.hr = jitter(p.hr, 4, 62, 118); p.spo2 = jitter(p.spo2, 1.2, 90, 100);
+    p.sys = jitter(p.sys, 3, 100, 158); p.dia = jitter(p.dia, 2, 60, 98); p.temp = jitter(p.temp, 0.15, 97.8, 101);
+  }
+  if (Math.random() < 0.5) { // nurse records something
+    const p = PATIENTS[Math.floor(Math.random() * PATIENTS.length)];
+    const m = p.meds[Math.floor(Math.random() * p.meds.length)];
+    careLog.push({ t: nowHM(), pid: p.id, entry: m[0], dose: m[1], route: m[2], by: NURSES[Math.floor(Math.random() * NURSES.length)] });
+    careLog = careLog.slice(-60);
+  }
+  if (Math.random() < 0.4) { // a charge posts
+    const p = PATIENTS[Math.floor(Math.random() * PATIENTS.length)];
+    const c = CHARGES[Math.floor(Math.random() * CHARGES.length)];
+    p.bill.push({ t: nowHM(), item: c[0], amt: c[1] === c[2] ? c[1] : c[1] + Math.floor(Math.random() * (c[2] - c[1])) });
+  }
+  if ($("tab-hospital").classList.contains("active")) {
+    renderWard();
+    if ($("hview-family").classList.contains("active")) renderFamView();
+    if ($("hview-bill").classList.contains("active")) renderBill();
+    if ($("hview-carelog").classList.contains("active")) renderCareLog();
+  }
+}
+setInterval(simTick, 2000);
+
+/* ECG sweep (family view) */
+(function ecg() {
+  const c = $("fvEcg"); if (!c || new URLSearchParams(location.search).has("shot")) return; const ctx = c.getContext("2d");
+  let x = 0;
+  function frame() {
+    if ($("hview-family") && $("hview-family").classList.contains("active")) {
+      const p = pat(famSelected) || PATIENTS[0];
+      ctx.fillStyle = "rgba(255,255,255,0.16)"; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.strokeStyle = "#0d9488"; ctx.lineWidth = 1.6; ctx.beginPath();
+      const beat = Math.max(18, 60 - (p.hr - 60) * 0.5);
+      for (let i = 0; i < 4; i++) {
+        const xx = (x + i) % c.width, ph = (xx % beat) / beat;
+        let y = 40;
+        if (ph > 0.42 && ph < 0.5) y = 40 - 34 * Math.sin((ph - 0.42) / 0.08 * Math.PI); // QRS spike
+        else if (ph > 0.15 && ph < 0.22) y = 40 - 7 * Math.sin((ph - 0.15) / 0.07 * Math.PI); // P wave
+        else if (ph > 0.6 && ph < 0.72) y = 40 - 10 * Math.sin((ph - 0.6) / 0.12 * Math.PI); // T wave
+        i ? ctx.lineTo(xx, y) : ctx.moveTo(xx, y);
+      }
+      ctx.stroke(); x = (x + 4) % c.width;
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+function renderHospital() { renderWard(); syncSelectors(); renderFamView(); renderBill(); renderCareLog(); }
+
 $("vitalsAiBtn").addEventListener("click", async () => {
   const box = $("vitalsAi"); box.classList.remove("hidden"); box.textContent = "Summarising…";
-  const data = PATIENTS.map(p => `${p.bed} ${p.name} (${p.prob}): BP ${p.bp[0]}/${p.bp[1]}, HR ${p.hr}, SpO2 ${p.spo2}%`).join("; ");
+  const data = PATIENTS.map(p => `${p.bed} ${p.name} (${p.prob}): BP ${Math.round(p.sys)}/${Math.round(p.dia)}, HR ${Math.round(p.hr)}, SpO2 ${Math.round(p.spo2)}%`).join("; ");
   try {
     const resp = await bharatCall({ model: MODEL, store: false, max_output_tokens: 400, input: "You are a hospital-shift nurse aide. In 3 short lines, summarise which of these simulated demo patients needs review first and why. Data: " + data });
     box.textContent = "AI shift note (demo data): " + respText(resp).trim();
@@ -419,6 +650,9 @@ $("vitalsAiBtn").addEventListener("click", async () => {
 refreshKeyStatus(); renderDoctors(); renderQueue(); renderLabPrices(); renderHospital(); renderFamily(); renderReminders();
 const h = location.hash.slice(1);
 if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
+if (new URLSearchParams(location.search).has("shot")) document.documentElement.classList.add("noanim");
+const hv = new URLSearchParams(location.search).get("hview");
+if (hv) { document.querySelector('.tab[data-tab="hospital"]').click(); const hb = document.querySelector(`.hosp-tab[data-hview="${hv}"]`); if (hb) hb.click(); }
 if (new URLSearchParams(location.search).has("autodemo")) {
   (async () => {
     const kind = new URLSearchParams(location.search).get("autodemo") === "lab" ? "labreport" : "prescription";

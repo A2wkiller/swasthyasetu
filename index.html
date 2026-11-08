@@ -128,11 +128,13 @@
 <section id="tab-appointments" class="panel">
   <div class="card">
     <h2>Book an appointment <span class="demo-pill">demo data</span></h2>
-    <p class="muted">Find a doctor, pick a slot, get a token. If a doctor runs out of slots, SwasthyaSetu suggests next-day early-morning or night slots automatically.</p>
-    <div id="doctorList" class="grid"></div>
+    <div class="appt-search"><input id="apptQuery" class="inp" placeholder="Search doctor, specialty or hospital…">
+      <div id="apptChips" class="appt-chips"></div></div>
+    <div id="doctorList" class="doc-list"></div>
     <div id="slotBox" class="hidden">
       <h3 id="slotTitle"></h3>
-      <div id="slots" class="slots"></div>
+      <div id="dayChips" class="day-chips"></div>
+      <div id="slots"></div>
       <div id="reschedule" class="notice hidden"></div>
     </div>
     <div id="bookingConfirm"></div>
@@ -161,23 +163,70 @@
 
 <!-- ============ HOSPITAL DASHBOARD ============ -->
 <section id="tab-hospital" class="panel">
-  <div class="banner-demo">🏥 HOSPITAL-SIDE DASHBOARD - ALL DATA ON THIS TAB IS SIMULATED DEMO DATA</div>
-  <div class="grid3">
-    <div class="card">
-      <h3>Bed availability</h3>
-      <div id="beds"></div>
+  <div class="banner-demo">🏥 HOSPITAL-SIDE DASHBOARD - ALL DATA ON THIS TAB IS SIMULATED DEMO DATA, UPDATING LIVE FOR THE DEMO</div>
+  <div class="hosp-nav">
+    <button class="hosp-tab active" data-hview="ward">🛏️ 3D Ward (live)</button>
+    <button class="hosp-tab" data-hview="family">👪 Family view (live vitals)</button>
+    <button class="hosp-tab" data-hview="carelog">💉 Medication & care log</button>
+    <button class="hosp-tab" data-hview="bill">🧾 Live bill</button>
+  </div>
+
+  <div id="hview-ward" class="hview active">
+    <div class="ward-layout">
+      <div class="card ward-stage-card">
+        <h3>Ward live preview <span class="live-dot"></span> <span class="muted small">click a bed to inspect the patient</span>
+          <button id="vitalsAiBtn" class="btn ghost small" style="float:right">AI shift summary</button></h3>
+        <div class="ward-stage"><div id="ward3d" class="ward-floor"></div></div>
+        <div class="legend">Bed color: <span class="pill ok">stable</span> <span class="pill warn">review</span> <span class="pill bad">critical</span> · vitals drift live (simulated)</div>
+        <div id="vitalsAi" class="notice hidden"></div>
+      </div>
+      <div class="card" id="wardPatient"></div>
     </div>
-    <div class="card wide">
-      <h3>Admitted patients - vitals monitor <button id="vitalsAiBtn" class="btn ghost small">AI vitals summary</button></h3>
-      <table class="tbl" id="vitalsTable">
-        <thead><tr><th>Bed</th><th>Patient</th><th>Problem</th><th>BP</th><th>Heart rate</th><th>SpO₂</th><th>Status</th></tr></thead>
+  </div>
+
+  <div id="hview-family" class="hview">
+    <div class="card">
+      <div class="formrow"><label class="small muted">Admitted patient:</label><select id="famSelect" class="inp"></select><span class="live-dot"></span><span class="small muted" id="fvUpdated"></span></div>
+      <div id="fvHeader"></div>
+      <div class="family-grid">
+        <div class="vital-card body-card">
+          <div class="vital-label">Live body view <span class="muted" style="text-transform:none">(animated, not diagnostic)</span></div>
+          <div id="fvBody"></div>
+        </div>
+        <div class="vitals-grid">
+        <div class="vital-card"><div class="vital-label">Heart rate</div><div class="vital-num" id="fvHr">–</div><div class="vital-unit">bpm</div><canvas id="fvEcg" width="250" height="56"></canvas></div>
+        <div class="vital-card"><div class="vital-label">SpO₂</div><div class="vital-num" id="fvSpo2">–</div><div class="vital-unit">%</div></div>
+        <div class="vital-card"><div class="vital-label">Blood pressure</div><div class="vital-num" id="fvBp">–</div><div class="vital-unit">mmHg</div></div>
+        <div class="vital-card"><div class="vital-label">Temperature</div><div class="vital-num" id="fvTemp">–</div><div class="vital-unit">°F</div></div>
+        </div>
+      </div>
+      <h3>Heart rate trend (last hour, simulated)</h3>
+      <canvas id="fvTrend" width="700" height="150" class="trend-canvas"></canvas>
+      <h3>What the care team gave and did <span class="muted small">(nurse-recorded, visible to family)</span></h3>
+      <div id="fvLog"></div>
+    </div>
+  </div>
+
+  <div id="hview-carelog" class="hview">
+    <div class="card">
+      <h3>Medication & care log - whole ward <span class="live-dot"></span></h3>
+      <p class="muted">Every entry the nursing staff records: time, patient, medicine/procedure, dose, route and note. New entries appear here live.</p>
+      <table class="tbl" id="careLogTable">
+        <thead><tr><th>Time</th><th>Patient</th><th>Entry</th><th>Dose</th><th>Route</th><th>By</th></tr></thead>
         <tbody></tbody>
       </table>
-      <div id="vitalsAi" class="notice hidden"></div>
     </div>
+  </div>
+
+  <div id="hview-bill" class="hview">
     <div class="card">
-      <h3>Billing</h3>
-      <div id="billing"></div>
+      <div class="formrow"><label class="small muted">Patient:</label><select id="billSelect" class="inp"></select><span class="live-dot"></span><span class="small muted">charges post as they happen</span></div>
+      <div class="bill-total-row">Running total: <span id="billTotal" class="bill-total">₹0</span></div>
+      <table class="tbl" id="billTable">
+        <thead><tr><th>Time</th><th>Item</th><th>Amount</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="formrow" style="margin-top:10px"><button class="btn primary small" onclick="alert('Demo payment - no real money moves.')">Pay bill (demo)</button></div>
     </div>
   </div>
 </section>
