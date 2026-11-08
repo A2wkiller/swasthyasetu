@@ -338,7 +338,7 @@ $("symGo").addEventListener("click", () => {
 
 /* ---------------- appointments + queue (demo data, Practo/BookMyShow style) ---------------- */
 const DOCTORS = [
-  { id: "d1", name: "Dr. Sneha Kulkarni", spec: "General Physician", specKey: "physician", hospital: "CityCare Hospital", area: "FC Road, Pune", dist: "2.1 km", exp: 12, rating: 4.8, stories: 412, fee: 500, avail: "today", color: "#0d9488",
+  { id: "d1", name: "Dr. Sneha Kulkarni", spec: "General Physician", specKey: "physician", hospital: "CityCare Hospital", area: "FC Road, Pune", dist: "2.1 km", exp: 12, rating: 4.8, stories: 412, fee: 500, avail: "today", color: "#148a58",
     days: { Today: { Morning: [["09:00", 1], ["09:30", 1], ["10:00", 0], ["11:15", 0]], Evening: [["17:00", 0], ["17:30", 0], ["18:00", 0]] }, Tomorrow: { Morning: [["08:30", 0], ["09:00", 0], ["10:30", 0]], Evening: [["17:00", 0], ["18:30", 0]] } } },
   { id: "d2", name: "Dr. Arjun Mehta", spec: "Cardiologist", specKey: "cardio", hospital: "Ruby Hall Clinic", area: "Sassoon Road, Pune", dist: "4.6 km", exp: 19, rating: 4.9, stories: 687, fee: 1200, avail: "tomorrow", color: "#7c3aed",
     days: { Today: {}, Tomorrow: { Morning: [["07:30", 0], ["08:00", 0]], Night: [["21:00", 0], ["21:30", 0]] } } },
@@ -517,8 +517,8 @@ function renderDashboard() {
   renderStats();
   const zones = {};
   for (const p of PATIENTS) zones[p.zone] = (zones[p.zone] || 0) + 1;
-  barChart("chartCensus", Object.keys(zones), Object.values(zones), "#0d9488");
-  barChart("chartBill", PATIENTS.map(p => p.bed), PATIENTS.map(p => p.bill.reduce((x, b) => x + b.amt, 0)), "#0f766e");
+  barChart("chartCensus", Object.keys(zones), Object.values(zones), "#148a58");
+  barChart("chartBill", PATIENTS.map(p => p.bed), PATIENTS.map(p => p.bill.reduce((x, b) => x + b.amt, 0)), "#0e6b46");
 }
 function renderWard() {
   renderDashboard();
@@ -616,7 +616,7 @@ function renderFamView() {
   const c = $("fvTrend"), ctx = c.getContext("2d");
   ctx.clearRect(0, 0, c.width, c.height);
   const min = Math.min(...h, 60), max = Math.max(...h, 110);
-  ctx.strokeStyle = "#0d9488"; ctx.lineWidth = 2; ctx.beginPath();
+  ctx.strokeStyle = "#148a58"; ctx.lineWidth = 2; ctx.beginPath();
   h.forEach((v, i) => { const x = 10 + i * ((c.width - 20) / 39), y = c.height - 15 - ((v - min) / (max - min)) * (c.height - 30); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
   ctx.stroke();
   ctx.fillStyle = "#5f7470"; ctx.font = "11px sans-serif"; ctx.fillText(min + " bpm", 10, c.height - 3); ctx.fillText(max + " bpm", 10, 12);
@@ -716,7 +716,7 @@ setInterval(simTick, 2000);
     if ($("hview-family") && $("hview-family").classList.contains("active")) {
       const p = pat(famSelected) || PATIENTS[0];
       ctx.fillStyle = "rgba(255,255,255,0.16)"; ctx.fillRect(0, 0, c.width, c.height);
-      ctx.strokeStyle = "#0d9488"; ctx.lineWidth = 1.6; ctx.beginPath();
+      ctx.strokeStyle = "#148a58"; ctx.lineWidth = 1.6; ctx.beginPath();
       const beat = Math.max(18, 60 - (p.hr - 60) * 0.5);
       for (let i = 0; i < 4; i++) {
         const xx = (x + i) % c.width, ph = (xx % beat) / beat;

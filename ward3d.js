@@ -12,7 +12,7 @@ window.Ward3D = (() => {
     const c = document.createElement("canvas"); c.width = 256; c.height = 80;
     const g = c.getContext("2d");
     g.fillStyle = "rgba(255,255,255,0.92)"; g.roundRect ? (g.beginPath(), g.roundRect(28, 12, 200, 56, 14), g.fill()) : g.fillRect(28, 12, 200, 56);
-    g.fillStyle = "#0f766e"; g.font = "bold 40px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#0e6b46"; g.font = "bold 40px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
     g.fillText(text, 128, 42);
     const t = new THREE.CanvasTexture(c);
     const m = new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true });
