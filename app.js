@@ -476,7 +476,21 @@ function nowHM() { const d = new Date(); return String(d.getHours()).padStart(2,
 
 /* 3D ward */
 let wardInited = false;
+function renderStats() {
+  const occ = PATIENTS.length, total = 12;
+  const crit = PATIENTS.filter(p => patStatus(p) === "critical").length;
+  const rev = PATIENTS.filter(p => patStatus(p) === "review").length;
+  const revenue = PATIENTS.reduce((sum, p) => sum + p.bill.reduce((x, b) => x + b.amt, 0), 0);
+  const entries = careLog.length;
+  $("statRow").innerHTML = [
+    ["Beds occupied", occ + "/" + total, Math.round(occ / total * 100) + "% occupancy"],
+    ["Patients needing review", crit + rev, crit + " critical · " + rev + " review"],
+    ["Care log entries today", entries, "nurse-recorded"],
+    ["Revenue today", "₹" + revenue.toLocaleString("en-IN"), "across " + PATIENTS.length + " admitted patients"]
+  ].map(([l, v, sub]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-num">${v}</div><div class="stat-sub">${sub}</div></div>`).join("");
+}
 function renderWard() {
+  renderStats();
   if (!wardInited) {
     try { Ward3D.init($("wardCanvas"), PATIENTS, id => selectWard(id)); wardInited = true; }
     catch (e) { console.warn("ward3d failed", e); }
