@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwasthyaSetu - Your health, one bridge</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">✚</span>
+    <div>
+      <h1>SwasthyaSetu</h1>
+      <p class="tagline">स्वास्थ्य सेतु - your health, one bridge</p>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="scan">📄 Read document</button>
+    <button class="tab" data-tab="timeline">🗂 Timeline</button>
+    <button class="tab" data-tab="reminders">💊 Reminders</button>
+    <button class="tab" data-tab="family">👨‍👩‍👧 Family</button>
+    <button class="tab" data-tab="emergency">🚨 Emergency card</button>
+    <button class="tab" data-tab="symptom">🩺 Symptom check</button>
+    <button class="tab" data-tab="appointments">📅 Appointments</button>
+    <button class="tab" data-tab="queue">🔢 Queue</button>
+    <button class="tab" data-tab="labprice">🧪 Lab prices <span class="demo-pill">demo</span></button>
+    <button class="tab" data-tab="hospital">🏥 Hospital <span class="demo-pill">demo</span></button>
+  </nav>
+</header>
+
+<main>
+<!-- ============ SCAN / AI READER ============ -->
+<section id="tab-scan" class="panel active">
+  <div class="card">
+    <h2>Upload a prescription or lab report</h2>
+    <p class="muted">Take a photo of a doctor's prescription or a lab report. SwasthyaSetu explains it in plain English and Hindi, lists every medicine with its salt name, suggests cheaper Jan Aushadhi generics, and flags lab values outside range.</p>
+    <div class="upload-row">
+      <label class="upload-box" id="uploadBox">
+        <input type="file" id="fileInput" accept="image/*" hidden>
+        <span id="uploadLabel">📷 Choose photo</span>
+      </label>
+      <div class="doc-type">
+        <label><input type="radio" name="doctype" value="prescription" checked> Prescription</label>
+        <label><input type="radio" name="doctype" value="labreport"> Lab report</label>
+      </div>
+      <button id="sampleBtn" class="btn ghost">Use sample document</button>
+    </div>
+    <img id="preview" class="preview hidden" alt="document preview">
+    <div class="actions">
+      <button id="readBtn" class="btn primary" disabled>Read with AI (BharatCode Qwen vision)</button>
+      <span id="keyStatus" class="muted small"></span>
+    </div>
+  </div>
+  <div id="result" class="hidden"></div>
+</section>
+
+<!-- ============ TIMELINE ============ -->
+<section id="tab-timeline" class="panel">
+  <div class="card">
+    <h2>Health timeline</h2>
+    <p class="muted">Every document read is saved on this device per family member. Lab values like TSH or fasting sugar are plotted so trends are visible at a glance.</p>
+    <div id="timelineList"></div>
+    <div id="trendBox" class="hidden">
+      <h3>Lab trends</h3>
+      <canvas id="trendChart" width="640" height="220"></canvas>
+      <div id="trendLegend" class="legend"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEDICINE REMINDERS ============ -->
+<section id="tab-reminders" class="panel">
+  <div class="card">
+    <h2>Medicine reminders</h2>
+    <p class="muted">Medicines from a scanned prescription can become reminders in one tap, or add your own. While this page is open, due reminders alert here.</p>
+    <div id="reminderList"></div>
+    <h3>Add reminder</h3>
+    <div class="formrow">
+      <input id="remName" placeholder="Medicine name" class="inp">
+      <input id="remTime" type="time" class="inp">
+      <select id="remMember" class="inp"></select>
+      <button id="remAdd" class="btn primary">Add</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAMILY PROFILES ============ -->
+<section id="tab-family" class="panel">
+  <div class="card">
+    <h2>Family profiles</h2>
+    <p class="muted">Keep everyone's documents, reminders and emergency cards separate. The active profile is used across the app.</p>
+    <div id="familyList" class="grid"></div>
+    <h3>Add member</h3>
+    <div class="formrow">
+      <input id="famName" placeholder="Name" class="inp">
+      <input id="famAge" type="number" placeholder="Age" class="inp" style="max-width:90px">
+      <input id="famBlood" placeholder="Blood group (e.g. B+)" class="inp" style="max-width:150px">
+      <button id="famAdd" class="btn primary">Add</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EMERGENCY CARD ============ -->
+<section id="tab-emergency" class="panel">
+  <div class="card">
+    <h2>Emergency card</h2>
+    <p class="muted">One card with what a doctor or helper needs first: blood group, conditions, allergies, current medicines and an emergency contact. Show the QR - it encodes the same text, works offline.</p>
+    <div id="ecardBox" class="ecard"></div>
+  </div>
+</section>
+
+<!-- ============ SYMPTOM CHECK (TRIAGE) ============ -->
+<section id="tab-symptom" class="panel">
+  <div class="card">
+    <h2>Symptom pre-check</h2>
+    <p class="warn">Triage only - this does NOT diagnose. It tells you how urgently to see a doctor and which specialist fits.</p>
+    <textarea id="symInput" class="inp" rows="3" placeholder="Describe symptoms: e.g. fever 2 days, body ache, mild cough..."></textarea>
+    <div class="formrow">
+      <select id="symAge" class="inp"><option value="">Age group</option><option>Child (0-12)</option><option>Teen (13-19)</option><option>Adult (20-45)</option><option>Middle age (46-60)</option><option>Senior (60+)</option></select>
+      <button id="symGo" class="btn primary">Check urgency</button>
+    </div>
+    <div id="symResult"></div>
+  </div>
+</section>
+
+<!-- ============ APPOINTMENTS ============ -->
+<section id="tab-appointments" class="panel">
+  <div class="card">
+    <h2>Book an appointment <span class="demo-pill">demo data</span></h2>
+    <p class="muted">Find a doctor, pick a slot, get a token. If a doctor runs out of slots, SwasthyaSetu suggests next-day early-morning or night slots automatically.</p>
+    <div id="doctorList" class="grid"></div>
+    <div id="slotBox" class="hidden">
+      <h3 id="slotTitle"></h3>
+      <div id="slots" class="slots"></div>
+      <div id="reschedule" class="notice hidden"></div>
+    </div>
+    <div id="bookingConfirm"></div>
+  </div>
+</section>
+
+<!-- ============ QUEUE ============ -->
+<section id="tab-queue" class="panel">
+  <div class="card">
+    <h2>Live queue tracker <span class="demo-pill">demo data</span></h2>
+    <p class="muted">Booked a token? Watch your turn approach and get notified - no more waiting in the corridor.</p>
+    <div id="queueBox"><p class="muted">No active token. Book an appointment first (demo data).</p></div>
+  </div>
+</section>
+
+<!-- ============ LAB PRICE COMPARE ============ -->
+<section id="tab-labprice" class="panel">
+  <div class="card">
+    <h2>Compare lab prices <span class="demo-pill">demo data</span></h2>
+    <p class="muted">Same test, different prices. Compare nearby labs and book a home sample collection - simulated demo flow.</p>
+    <select id="labTest" class="inp"></select>
+    <div id="labRows"></div>
+    <div id="labBooked"></div>
+  </div>
+</section>
+
+<!-- ============ HOSPITAL DASHBOARD ============ -->
+<section id="tab-hospital" class="panel">
+  <div class="banner-demo">🏥 HOSPITAL-SIDE DASHBOARD - ALL DATA ON THIS TAB IS SIMULATED DEMO DATA</div>
+  <div class="grid3">
+    <div class="card">
+      <h3>Bed availability</h3>
+      <div id="beds"></div>
+    </div>
+    <div class="card wide">
+      <h3>Admitted patients - vitals monitor <button id="vitalsAiBtn" class="btn ghost small">AI vitals summary</button></h3>
+      <table class="tbl" id="vitalsTable">
+        <thead><tr><th>Bed</th><th>Patient</th><th>Problem</th><th>BP</th><th>Heart rate</th><th>SpO₂</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div id="vitalsAi" class="notice hidden"></div>
+    </div>
+    <div class="card">
+      <h3>Billing</h3>
+      <div id="billing"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <p><strong>Safety:</strong> SwasthyaSetu is an understanding aid, not medical advice. AI explanations and the symptom check can be wrong - always confirm medicines, doses, reports and symptoms with a qualified doctor or pharmacist. Appointments, queue, lab prices and hospital screens use simulated demo data. Documents stay on your device (browser local storage); they are sent only to the BharatCode model API for reading. Built for the BharatCode Build League, November 2026.</p>
+</footer>
+
+<script src="vendor/qrcode.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

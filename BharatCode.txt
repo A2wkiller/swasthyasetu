@@ -1,0 +1,1 @@
+SwasthyaSetu - one-stop health bridge for Indian families. Built with BharatCode AI (qwen-3.8-27b vision) for the BharatCode Build League. Author: Vaibhav Jain (github.com/A2wkiller).
