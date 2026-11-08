@@ -64,11 +64,11 @@ let currentImage = null; // {dataUrl, b64}
 function downscale(file, cb) {
   const img = new Image();
   img.onload = () => {
-    const max = 1280, scale = Math.min(1, max / Math.max(img.width, img.height));
+    const max = 1024, scale = Math.min(1, max / Math.max(img.width, img.height));
     const c = document.createElement("canvas");
     c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
     c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-    const url = c.toDataURL("image/jpeg", 0.82);
+    const url = c.toDataURL("image/jpeg", 0.7);
     cb({ dataUrl: url, b64: url.split(",")[1] });
   };
   img.src = URL.createObjectURL(file);
@@ -103,7 +103,9 @@ Rules: purpose_hi and summary_hi in simple Hindi (Devanagari). generic_alt = the
 
 $("readBtn").addEventListener("click", async () => {
   if (!currentImage) return;
-  const btn = $("readBtn"); btn.disabled = true; btn.textContent = "Reading… (BharatCode Qwen vision)";
+  const btn = $("readBtn"); btn.disabled = true;
+  let secs = 0; btn.textContent = "Reading with AI… 0s";
+  const tick = setInterval(() => { secs++; btn.textContent = `Reading with AI… ${secs}s (vision can take up to ~2 min)`; }, 1000);
   try {
     let parsed, usedDemo = false;
     try {
@@ -131,6 +133,7 @@ $("readBtn").addEventListener("click", async () => {
   } catch (e) {
     alert("Could not read the document: " + e.message + "\nTip: run with serve.py (see README) or save a BharatCode key.");
   }
+  clearInterval(tick);
   btn.disabled = false; btn.textContent = "Read with AI (BharatCode Qwen vision)";
 });
 
@@ -414,3 +417,16 @@ $("vitalsAiBtn").addEventListener("click", async () => {
 
 /* ---------------- init ---------------- */
 refreshKeyStatus(); renderDoctors(); renderQueue(); renderLabPrices(); renderHospital(); renderFamily(); renderReminders();
+const h = location.hash.slice(1);
+if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
+if (new URLSearchParams(location.search).has("autodemo")) {
+  (async () => {
+    const kind = new URLSearchParams(location.search).get("autodemo") === "lab" ? "labreport" : "prescription";
+    document.querySelector(`input[name=doctype][value=${kind === "labreport" ? "labreport" : "prescription"}]`).checked = true;
+    const url = kind === "labreport" ? "samples/sample-lab-report.jpg" : "samples/sample-prescription.jpg";
+    const blob = await (await fetch(url)).blob();
+    const r = new FileReader();
+    r.onload = () => { currentImage = { dataUrl: r.result, b64: r.result.split(",")[1] }; $("preview").src = r.result; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; renderScanResult(DEMO_RESULT(), true); };
+    r.readAsDataURL(blob);
+  })();
+}
