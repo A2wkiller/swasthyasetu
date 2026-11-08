@@ -40,6 +40,14 @@ works there except live AI reading (Pages is static, so the server-side key prox
 is not available); paste a BharatCode key into the Scan tab's key box for live reads,
 or use the built-in demo reads.
 
+## Demo video (50 s, with voiceover)
+
+Watch **[docs/demo.mp4](docs/demo.mp4)** (or [download the raw file](https://raw.githubusercontent.com/A2wkiller/swasthyasetu/main/docs/demo.mp4)):
+a guided tour of the whole app - landing, booking a real appointment with a live
+queue token, the AI document reader (English + Hindi), the staff dashboard, the 3D
+ward by day and night, and the family view of an admitted patient. Voiceover explains
+why we built it and what is real vs simulated.
+
 ## Screenshots
 
 | | |
