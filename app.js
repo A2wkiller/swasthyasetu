@@ -748,6 +748,7 @@ $("vitalsAiBtn").addEventListener("click", async () => {
 /* ---------------- roles & entry screens ---------------- */
 let role = store.get("role", null);
 function enterApp() {
+  document.body.classList.add("in-app");
   $("screen-landing").classList.add("hidden");
   $("screen-staff-login").classList.add("hidden");
   $("appTop").classList.remove("hidden");
@@ -775,10 +776,28 @@ function configureHospitalRole() {
   }
 }
 $("enterPatient").addEventListener("click", () => { role = "patient"; store.set("role", role); enterApp(); });
+document.querySelectorAll("[data-enter]").forEach(b => b.addEventListener("click", e => {
+  e.preventDefault();
+  role = b.dataset.enter; store.set("role", role); enterApp();
+  const t = document.querySelector(`.tab[data-tab="${b.dataset.goto}"]`); if (t) t.click();
+  window.scrollTo(0, 0);
+}));
+document.querySelectorAll("[data-staff-entry]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); $("enterStaff").click(); }));
+function renderLandingDocs() {
+  const el = $("landingDocs"); if (!el) return;
+  el.innerHTML = DOCTORS.map(d => `<div class="ldoc">
+    <div class="ldoc-av" style="background:${d.color}">${initials(d.name)}</div>
+    <strong>${d.name}</strong>
+    <div class="ldoc-spec">${d.spec}</div>
+    <div class="ldoc-meta">${d.hospital} · ${d.exp} yrs · ★ ${d.rating}</div>
+    <div class="ldoc-fee">₹${d.fee} · ${d.avail === "today" ? "Available today" : "Next: tomorrow"}</div>
+  </div>`).join("");
+}
+renderLandingDocs();
 $("enterStaff").addEventListener("click", () => { $("screen-landing").classList.add("hidden"); $("screen-staff-login").classList.remove("hidden"); });
 $("backToLanding").addEventListener("click", () => { $("screen-staff-login").classList.add("hidden"); $("screen-landing").classList.remove("hidden"); });
 $("staffLoginBtn").addEventListener("click", () => { role = "staff"; store.set("role", role); store.set("staffId", $("staffId").value || "staff"); enterApp(); });
-$("switchRole").addEventListener("click", () => { role = null; store.set("role", null); $("appTop").classList.add("hidden"); $("appMain").classList.add("hidden"); $("screen-landing").classList.remove("hidden"); });
+$("switchRole").addEventListener("click", () => { role = null; store.set("role", null); document.body.classList.remove("in-app"); $("appTop").classList.add("hidden"); $("appMain").classList.add("hidden"); $("screen-landing").classList.remove("hidden"); });
 $("caAdd").addEventListener("click", () => {
   const entry = $("caEntry").value.trim(); if (!entry) return;
   careLog.push({ t: nowHM(), pid: $("caPatient").value, entry, dose: $("caDose").value || "-", route: $("caRoute").value, by: (store.get("staffId", "Staff")) });

@@ -7,31 +7,176 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<!-- ============ ENTRY: role select + staff login ============ -->
-<div id="screen-landing" class="entry">
-  <div class="entry-card">
-    <div class="brand" style="justify-content:center"><div class="logo">+</div><div><h1>SwasthyaSetu</h1><div class="tagline">स्वास्थ्य सेतु - your health, one bridge</div></div></div>
-    <p class="entry-sub">One platform for families and hospitals. Choose how you want to enter.</p>
-    <div class="entry-roles">
-      <button class="role-card" id="enterPatient">
-        <div class="role-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div class="role-name">For Patients & Families</div>
-        <div class="role-desc">Read prescriptions with AI, book doctors, track tokens, follow an admitted family member's vitals and bill.</div>
-      </button>
-      <button class="role-card staff" id="enterStaff">
-        <div class="role-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg></div>
-        <div class="role-name">For Hospitals (Staff)</div>
-        <div class="role-desc">Ward live view, patient vitals, medication & care log, billing. Staff sign-in required.</div>
-      </button>
+<!-- ============ ENTRY: full-page website (landing) ============ -->
+<div id="screen-landing" class="site">
+  <nav class="site-nav">
+    <div class="sn-in">
+      <div class="brand"><span class="logo">✚</span><div><h1>SwasthyaSetu</h1><div class="tagline">स्वास्थ्य सेतु - your health, one bridge</div></div></div>
+      <div class="sn-links">
+        <a href="#svc">Services</a><a href="#how">How it works</a><a href="#docs">Doctors</a><a href="#hosp">For hospitals</a>
+      </div>
+      <div class="sn-cta">
+        <button class="btn ghost small" id="enterStaff" type="button">Staff sign-in</button>
+        <button class="btn primary small" id="enterPatient" type="button">Open patient app</button>
+      </div>
     </div>
-    <div class="svc-grid">
-      <div class="svc"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg><div><strong>AI prescription reader</strong><span>English + Hindi, generic alternatives</span></div></div>
-      <div class="svc"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Book doctors, skip queues</strong><span>Tokens, live "patients ahead"</span></div></div>
-      <div class="svc"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><div><strong>Track admitted family</strong><span>Live vitals, care log, bill</span></div></div>
-      <div class="svc"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div><strong>Emergency card + QR</strong><span>Works offline, on your device</span></div></div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-in">
+      <div class="hero-copy">
+        <span class="hero-pill">BharatCode Build League · November 2026 · demo build</span>
+        <h2 class="hero-h">Every report, queue and ward.<br><span class="hero-em">One bridge.</span></h2>
+        <p class="hero-p">SwasthyaSetu reads prescriptions and lab reports in plain English and Hindi, books doctors with live queue tokens, and lets families follow an admitted patient's vitals, care and bill - from one app.</p>
+        <div class="hero-cta">
+          <button class="btn primary big" type="button" data-enter="patient" data-goto="appointments">Book an appointment</button>
+          <button class="btn ghost big" type="button" data-enter="patient" data-goto="scan">Read a prescription →</button>
+        </div>
+        <div class="hero-trust">Documents stay on your device · English + हिंदी · Emergency card works offline</div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="ha-card ha-token">
+          <div class="ha-label">Live queue token</div>
+          <div class="ha-big">T-241</div>
+          <div class="ha-sub">5 patients ahead · ~44 min</div>
+          <div class="ha-bar"><span style="width:26%"></span></div>
+        </div>
+        <div class="ha-card ha-vitals">
+          <div class="ha-label">ICU-5 · S. Shaikh <span class="ha-live">● live</span></div>
+          <div class="ha-vrow"><span>Heart rate</span><strong>102 bpm</strong></div>
+          <div class="ha-vrow"><span>SpO₂</span><strong>93%</strong></div>
+          <div class="ha-vrow"><span>Breathing</span><strong>21 brpm</strong></div>
+          <svg class="ha-spark" viewBox="0 0 200 44" preserveAspectRatio="none"><polyline points="0,30 20,28 40,31 60,24 80,26 100,18 120,22 140,15 160,19 180,12 200,16" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
     </div>
-    <p class="entry-note">Hackathon build - hospital-side data is simulated live for the demo; the AI document reader is real.</p>
-  </div>
+    <div class="stats-strip">
+      <div class="ss-in">
+        <div class="ss-item"><strong>10+</strong><span>patient tools</span></div>
+        <div class="ss-item"><strong>12-bed</strong><span>live ward demo</span></div>
+        <div class="ss-item"><strong>2</strong><span>languages</span></div>
+        <div class="ss-item"><strong>1</strong><span>QR emergency card, offline</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" id="svc">
+    <div class="section-in">
+      <h3 class="sec-h">Everything between home and hospital</h3>
+      <p class="sec-sub">Patient-side tools are real and work on your device. Hospital-side screens run on simulated live data in this demo.</p>
+      <div class="svc-tiles">
+        <button class="tile" type="button" data-enter="patient" data-goto="scan">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
+          <strong>AI prescription & report reader</strong>
+          <span>Photo → plain English + Hindi. Salt names, cheaper Jan Aushadhi generics, out-of-range flags.</span>
+          <em>Open tool →</em>
+        </button>
+        <button class="tile" type="button" data-enter="patient" data-goto="appointments">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <strong>Book doctors, skip the line</strong>
+          <span>Real-time slots, instant token with QR ticket, fees up front.</span>
+          <em>Book now →</em>
+        </button>
+        <button class="tile" type="button" data-enter="patient" data-goto="queue">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <strong>Live queue tracker</strong>
+          <span>"Patients ahead" and wait estimate, with simulated waiting-room crowd sensing.</span>
+          <em>Track token →</em>
+        </button>
+        <button class="tile" type="button" data-enter="patient" data-goto="labprice">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6M10 3v6.3L4.7 19a2 2 0 0 0 1.8 3h11a2 2 0 0 0 1.8-3L14 9.3V3"/><path d="M7.5 15h9"/></svg></div>
+          <strong>Lab test prices</strong>
+          <span>Compare common test prices before you go. Demo price list.</span>
+          <em>Compare →</em>
+        </button>
+        <button class="tile" type="button" data-enter="patient" data-goto="hospital">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <strong>Track an admitted patient</strong>
+          <span>Live vitals, nurse-recorded care log and running bill - visible to family.</span>
+          <em>Open family view →</em>
+        </button>
+        <button class="tile" type="button" data-enter="patient" data-goto="emergency">
+          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <strong>Emergency card + QR</strong>
+          <span>Blood group, allergies, conditions - scannable offline, stored only on your device.</span>
+          <em>Create card →</em>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section alt" id="how">
+    <div class="section-in">
+      <h3 class="sec-h">How it works</h3>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><strong>Upload, book or share</strong><span>Snap a prescription, pick a doctor's slot, or share a family member's ward.</span></div>
+        <div class="step"><div class="step-n">2</div><strong>AI explains it simply</strong><span>Medicines, doses and lab values in plain English and Hindi, with cheaper generic options.</span></div>
+        <div class="step"><div class="step-n">3</div><strong>Act with confidence</strong><span>Reminders, queue updates and family vitals keep everyone on the same page.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="docs">
+    <div class="section-in">
+      <h3 class="sec-h">Doctors on SwasthyaSetu <span class="demo-pill">demo</span></h3>
+      <p class="sec-sub">A sample of the demo directory - book in two taps inside the app.</p>
+      <div class="ldoc-grid" id="landingDocs"></div>
+    </div>
+  </section>
+
+  <section class="hosp-band" id="hosp">
+    <div class="section-in hosp-in">
+      <div class="hosp-copy">
+        <h3 class="sec-h">SwasthyaSetu HMS for hospitals</h3>
+        <p>Run the ward on one screen: a live 3D ward, patient vitals with trends, a nurse care log families can see, night-time sleep & stillness sensing, and billing that updates as care happens.</p>
+        <ul class="hosp-list">
+          <li>Live 3D ward with bed-level alerts</li>
+          <li>Vitals, trends and AI shift summaries</li>
+          <li>Medication & care log shared with family</li>
+          <li>Live billing per admitted patient</li>
+        </ul>
+        <button class="btn light big" type="button" data-staff-entry="1">Staff sign-in (demo)</button>
+        <p class="hosp-note">Demo sign-in - any ID works. All hospital-side data is simulated.</p>
+      </div>
+      <div class="hosp-art" aria-hidden="true">
+        <div class="hb-row"><span>Beds occupied</span><strong>6/12</strong></div>
+        <div class="hb-row"><span>Needs review</span><strong>3</strong></div>
+        <div class="hb-row"><span>Care log today</span><strong>5</strong></div>
+        <div class="hb-row"><span>Revenue today</span><strong>₹20,558</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section safe-strip">
+    <div class="section-in">
+      <p><strong>Safety:</strong> SwasthyaSetu is an understanding aid, not medical advice. AI explanations can be wrong - always confirm medicines, doses, reports and symptoms with a qualified doctor or pharmacist. Documents stay in your browser's local storage; they are sent only to the BharatCode model API when you ask the AI to read them.</p>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="section-in foot-grid">
+      <div>
+        <div class="brand"><span class="logo">✚</span><div><h1>SwasthyaSetu</h1><div class="tagline">your health, one bridge</div></div></div>
+        <p class="foot-p">Built for the BharatCode Build League, November 2026.</p>
+      </div>
+      <div>
+        <strong class="foot-h">Patients</strong>
+        <a href="#" data-enter="patient" data-goto="scan">Read a document</a>
+        <a href="#" data-enter="patient" data-goto="appointments">Book a doctor</a>
+        <a href="#" data-enter="patient" data-goto="queue">Track a token</a>
+        <a href="#" data-enter="patient" data-goto="emergency">Emergency card</a>
+      </div>
+      <div>
+        <strong class="foot-h">Hospitals</strong>
+        <a href="#" data-staff-entry="1">Staff sign-in</a>
+        <a href="#hosp">HMS overview</a>
+      </div>
+      <div>
+        <strong class="foot-h">Attribution</strong>
+        <p class="foot-p">3D anatomy model: Z-Anatomy (CC BY-SA 4.0), via hpfrei/body-anatomy-3d-viewer - see NOTICE. Icons: inline SVG. Hospital-side data is simulated for the demo.</p>
+      </div>
+    </div>
+  </footer>
 </div>
 <div id="screen-staff-login" class="entry hidden">
   <div class="entry-card narrow">
