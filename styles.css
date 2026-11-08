@@ -1,3 +1,11 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: brand · redesign: full · scope: app
+ * paper: oklch(96.5% 0.008 112) · accent: oklch(52% 0.14 154) · display: Schibsted Grotesk · body: Instrument Sans
+ * nav: fixed patient rail and existing staff rail · signature: live 3D body and ward · states: full and empty
+ * axes: warm paper/compact sans/pharmacy green · posture: restrained · contrast: checked · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H5 E4 S5 R4 V3 · weakest: V, kept the existing feature order to protect familiar family workflows */
+@import url("./tokens.css");
+@import url("./base.css");
+
 /* ---- self-hosted dose fonts (offline-friendly) ---- */
 @font-face { font-family: "Schibsted Grotesk"; src: url("vendor/fonts/SchibstedGrotesk-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 @font-face { font-family: "Instrument Sans"; src: url("vendor/fonts/InstrumentSans-var.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
@@ -20,7 +28,7 @@
 }
 * { box-sizing: border-box; margin: 0; }
 body {
-  font-family: "Instrument Sans", "Inter", -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  font-family: var(--font-body);
   background-color: var(--bg);
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0.55 0 0 0 0 0.58 0 0 0 0 0.5 0 0 0 0.035 0"/></filter><rect width="240" height="240" filter="url(%23g)"/></svg>');
   color: var(--ink); line-height: 1.5; min-height: 100vh;
@@ -718,6 +726,277 @@ h2, h3, .sec-h, .hero-h, .card h2, .tile strong, .step strong { font-family: var
 /* bands + footer in green-black */
 .hosp-band { background: linear-gradient(135deg, #14211b 0%, #145138 100%); }
 .hosp-band p { color: #c9dcd0; }
+
+/* Hallmark · app shell and clinical workspace */
+:root {
+  --teal: var(--color-accent);
+  --teal-dark: oklch(43% 0.12 153);
+  --teal-deep: oklch(30% 0.045 151);
+  --grad: var(--color-accent);
+  --bg: var(--color-paper);
+  --card: oklch(98% 0.009 112);
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
+  --line: var(--color-rule);
+  --good: var(--color-success);
+  --warn: var(--color-warning);
+  --bad: var(--color-error);
+  --amber-bg: var(--color-warning-paper);
+  --red-bg: var(--color-danger-paper);
+  --paper-2: var(--color-paper-2);
+  --paper-3: var(--color-paper-3);
+  --mint: oklch(87% 0.04 150);
+  --sand: oklch(92% 0.02 95);
+  --disp: var(--font-display);
+  --mono: ui-monospace, Consolas, monospace;
+  --shadow: var(--shadow-card);
+  --shadow-lg: 0 2px 8px oklch(20% 0.01 150 / 0.08);
+}
+
+body { background: var(--color-paper); font-family: var(--font-body); }
+body:not(.in-app) { background: var(--color-paper); }
+body:not(.in-app) .site { background: var(--color-paper); }
+.topbar.hidden, main.hidden { display: none !important; }
+
+/* Ten destinations earn a persistent rail on the patient workspace. */
+body.in-app .topbar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: var(--z-sticky-nav);
+  width: 256px;
+  height: 100dvh;
+  overflow-y: auto;
+  padding: 24px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  flex-wrap: nowrap;
+  background: var(--color-paper);
+  border-right: 1px solid var(--color-rule);
+  border-bottom: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.in-app .topbar .brand { gap: 12px; min-width: 0; }
+body.in-app .topbar .logo {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-nav);
+  color: var(--color-accent-ink);
+  box-shadow: none;
+}
+body.in-app .topbar .brand h1 { color: var(--color-ink); font-size: 18px; }
+body.in-app .topbar .tagline { font-size: 12px; }
+body.in-app .role-chip-row {
+  order: 3;
+  margin: auto 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-rule);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+body.in-app .role-chip {
+  padding: 4px 8px;
+  color: var(--color-ink-2);
+  background: var(--color-paper-2);
+  font: 500 12px/1.3 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+body.in-app .topbar .tabs {
+  order: 2;
+  flex: 1 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow: visible;
+  padding: 0;
+}
+body.in-app .tab {
+  width: 100%;
+  min-height: 44px;
+  justify-content: flex-start;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-left: 3px solid transparent;
+  border-radius: 7px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--color-ink-2);
+  font: 500 14px/1.35 var(--font-body);
+  text-align: left;
+  white-space: normal;
+  box-shadow: none;
+  transition: color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+body.in-app .tab:hover { color: var(--color-ink); border-color: transparent; background: var(--color-paper-2); transform: none; }
+body.in-app .tab.active {
+  color: var(--color-ink);
+  border-color: transparent;
+  border-left-color: var(--color-accent);
+  background: var(--color-paper-2);
+  box-shadow: none;
+}
+body.in-app .tab .demo-pill {
+  margin-left: auto;
+  padding: 2px 6px;
+  background: var(--color-paper-3);
+  color: var(--color-ink-2);
+  font: 400 11px/1.2 var(--font-body);
+}
+body.in-app main#appMain {
+  display: flex;
+  justify-content: center;
+  width: calc(100% - 256px);
+  max-width: none;
+  margin: 0 0 0 256px;
+  padding: 32px 24px 48px;
+  min-height: 100vh;
+}
+body.in-app #appMain > .panel { width: 100%; max-width: 1440px; }
+body.in-app #appMain > .panel { animation: none; }
+body.in-app .card {
+  margin-bottom: 16px;
+  padding: 24px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: none;
+}
+body.in-app h2 {
+  color: var(--color-ink);
+  font-size: 24px;
+  line-height: 1.2;
+}
+body.in-app h3 { color: var(--color-ink-2); font-size: 17px; }
+body.in-app .muted { color: var(--color-muted); font-size: 14px; }
+body.in-app .small { font-size: 12px; }
+body.in-app .btn {
+  min-height: 40px;
+  border-radius: var(--radius-control);
+  box-shadow: none;
+  transition: color var(--dur-short) var(--ease-out), background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+}
+body.in-app .btn.primary {
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: none;
+}
+body.in-app .btn.primary:hover:not(:disabled) { background: oklch(46% 0.13 154); filter: none; transform: none; }
+body.in-app .btn.ghost { border-color: var(--color-rule); background: transparent; color: var(--color-ink); }
+body.in-app .btn.ghost:hover { background: var(--color-paper-2); }
+body.in-app .inp {
+  min-height: 40px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--color-ink);
+  outline: 2px solid transparent;
+  outline-offset: -3px;
+}
+body.in-app .inp:focus { outline-color: var(--color-focus); border-color: var(--color-rule); box-shadow: none; }
+body.in-app :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; box-shadow: none; }
+body.in-app .tab:focus-visible, body.in-app .btn:focus-visible { outline-offset: 2px; }
+body.in-app .warn, body.in-app .notice { border-color: var(--color-warning); color: var(--color-ink); background: var(--color-warning-paper); }
+body.in-app .banner-demo { border-radius: 8px; background: var(--color-nav); color: var(--color-accent-ink); font-weight: 500; letter-spacing: 0; text-align: left; }
+body.in-app .demo-pill { color: var(--color-ink-2); background: var(--color-paper-2); border-radius: 5px; font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+body.in-app .med-table, body.in-app .tbl { border-color: var(--color-rule); border-radius: 8px; }
+body.in-app .med-table th, body.in-app .tbl th { background: var(--color-paper-2); color: var(--color-ink); font: 600 13px/1.4 var(--font-body); text-transform: none; letter-spacing: 0; }
+body.in-app .med-table td, body.in-app .tbl td { color: var(--color-ink-2); }
+body.in-app .stat-card, body.in-app .doc-row, body.in-app .tl-item, body.in-app .rem-row { border-color: var(--color-rule); border-radius: 10px; background: var(--card); box-shadow: none; }
+body.in-app .stat-label, body.in-app .vital-label, body.in-app .slot-group-label { color: var(--color-ink-2); font: 500 12px/1.35 var(--font-body); letter-spacing: 0; text-transform: none; }
+body.in-app .stat-num, body.in-app .vital-num, body.in-app .bill-total { color: var(--color-ink); font-variant-numeric: tabular-nums; }
+body.in-app .vital-cell {
+  border: 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+  box-shadow: none;
+}
+body.in-app .body-card { align-items: stretch; background: transparent; }
+body.in-app .family-grid { grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.5fr); }
+body.in-app .body-canvas { width: 100%; max-width: 360px; margin: auto; border-radius: 8px; background: var(--color-paper-2); }
+body.in-app .ward-stage { overflow: hidden; border-radius: 8px; background: var(--color-paper-2); }
+body.in-app #wardCanvas { border-radius: 8px; background: var(--color-paper-2); }
+body.in-app .vital-cell canvas, body.in-app .trend-canvas, body.in-app .chart-c { border-color: var(--color-rule); border-radius: 8px; background: var(--card); }
+body.in-app .live-dot { animation: none; background: var(--color-success); }
+body.in-app .progress > div, body.in-app .bar-fill { transition: none; }
+body.in-app footer { width: calc(100% - 256px); max-width: 1440px; margin: 0 0 24px 256px; padding: 0 24px; color: var(--color-muted); }
+
+/* Preserve the public page, with the same restrained paper and pharmacy-green signal. */
+.site-nav { background: var(--color-paper); border-color: var(--color-rule); backdrop-filter: none; }
+.hero { background: var(--color-nav); }
+.hero-pill { border-radius: 5px; background: transparent; border-color: oklch(98% 0.008 120 / 0.3); font: 500 12px/1.4 var(--font-body); letter-spacing: 0; }
+.hero-h, .hero-em { color: var(--color-accent-ink); }
+.hero-p { max-width: 54ch; color: oklch(94% 0.015 135); }
+.hero-trust, .ss-item span { color: oklch(86% 0.035 145); }
+.ha-card { border-radius: 10px; background: oklch(98% 0.009 112 / 0.08); border-color: oklch(98% 0.009 112 / 0.2); box-shadow: none; backdrop-filter: none; }
+.ha-vitals { background: oklch(18% 0.025 150); }
+.ha-label { color: oklch(90% 0.03 145); font: 500 12px/1.4 var(--font-body); letter-spacing: 0; text-transform: none; }
+.ha-bar span { background: var(--mint); }
+.stats-strip { background: oklch(22% 0.035 151); }
+.section.alt { background: var(--color-paper-2); }
+.tile, .step, .ldoc { border-color: var(--color-rule); border-radius: 10px; background: var(--card); box-shadow: none; }
+.tile:hover, .step:hover, .ldoc:hover { transform: none; box-shadow: var(--shadow-card); }
+.tile-ico, .step-n { width: 40px; height: 40px; border-radius: 9px; background: var(--color-paper-2); color: var(--color-ink); box-shadow: none; }
+.tile em { color: var(--color-accent); }
+.hosp-band { background: var(--color-nav); }
+.hosp-art { border-radius: 10px; background: oklch(98% 0.009 112 / 0.06); box-shadow: none; }
+.safe-strip { background: var(--color-warning-paper); border-color: var(--color-warning); }
+.safe-strip p { color: var(--color-ink); }
+.site-footer { background: var(--color-nav); }
+
+@media (min-width: 900px) {
+  body.role-staff #tab-hospital { grid-template-columns: 204px minmax(0, 1fr); gap: 20px; }
+  body.role-staff .hosp-nav { top: 24px; border-radius: 10px; background: var(--color-nav); }
+  body.role-staff .hosp-tab { min-height: 40px; border-radius: 6px; }
+  body.role-staff .hosp-tab.active { background: oklch(38% 0.07 151); }
+}
+@media (max-width: 899px) {
+  body.in-app .topbar {
+    position: sticky;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: auto;
+    max-height: 55vh;
+    gap: 12px;
+    padding: 12px 16px 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  body.in-app .topbar .tabs { flex: 0 0 auto; flex-direction: row; overflow-x: auto; scrollbar-width: thin; }
+  body.in-app .tab { width: auto; min-width: max-content; border: 1px solid transparent; border-bottom: 2px solid transparent; border-left: 0; white-space: nowrap; }
+  body.in-app .tab.active { border: 1px solid transparent; border-bottom-color: var(--color-accent); }
+  body.in-app .role-chip-row { order: 1; margin: 0 0 0 auto; padding: 0; border: 0; }
+  body.in-app main#appMain { width: 100%; max-width: 100%; margin: 0; padding: 24px 16px 40px; }
+  body.in-app .family-grid { grid-template-columns: 1fr; }
+  body.in-app footer { width: 100%; max-width: 100%; margin: 0; padding: 0 16px 24px; }
+  body.role-staff .hosp-nav { position: static; }
+}
+@media (max-width: 560px) {
+  body.in-app .topbar { padding: 10px 12px 8px; gap: 10px; }
+  body.in-app .topbar .brand h1 { font-size: 16px; }
+  body.in-app .topbar .tagline { font-size: 11px; }
+  body.in-app .topbar .logo { width: 36px; height: 36px; }
+  body.in-app .role-chip { font-size: 11px; }
+  body.in-app .btn.small { min-height: 40px; }
+  body.in-app main#appMain { padding: 16px 12px 32px; }
+  body.in-app .card { padding: 16px; }
+  body.in-app h2 { font-size: 21px; }
+  .hero-in { padding: 40px 16px 32px; }
+  .hero-h { font-size: 32px; }
+  .section-in, .sn-in, .ss-in { padding-inline: 16px; }
+  .svc-tiles, .steps, .ldoc-grid { grid-template-columns: minmax(0, 1fr); }
+  .foot-grid { grid-template-columns: minmax(0, 1fr); }
+  .family-grid { grid-template-columns: minmax(0, 1fr); }
+}
 .hosp-list li { color: #d9efe2; }
 .hosp-list li::before { color: var(--mint); }
 .hb-row { color: #c9dcd0; }
@@ -732,3 +1011,4 @@ body.role-staff .hosp-nav, .hosp-nav { background: #16211b; }
 
 /* focus ring in pharmacy green */
 :focus-visible { outline-color: var(--teal); box-shadow: 0 0 0 4px rgba(20, 138, 88, .20); }
+

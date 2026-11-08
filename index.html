@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Read health reports, manage family care and follow hospital updates in one place.">
 <title>SwasthyaSetu - Your health, one bridge</title>
-<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23148a58"/><path d="M36 14h-8v14H14v8h14v14h8V36h14v-8H36z" fill="white"/></svg>'>
+<link rel="icon" href='data:image/svg+xml,<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="%23148a58"/><path d="M36 14h-8v14H14v8h14v14h8V36h14v-8H36z" fill="white"/></svg>'>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,7 +13,7 @@
 <div id="screen-landing" class="site">
   <nav class="site-nav">
     <div class="sn-in">
-      <div class="brand"><span class="logo">✚</span><div><h1>SwasthyaSetu</h1><div class="tagline">स्वास्थ्य सेतु - your health, one bridge</div></div></div>
+      <div class="brand"><span class="logo" aria-hidden="true">+</span><div><h1>SwasthyaSetu</h1><div class="tagline">स्वास्थ्य सेतु - your health, one bridge</div></div></div>
       <div class="sn-links">
         <a href="#svc">Services</a><a href="#how">How it works</a><a href="#docs">Doctors</a><a href="#hosp">For hospitals</a>
       </div>
@@ -26,28 +27,28 @@
   <header class="hero">
     <div class="hero-in">
       <div class="hero-copy">
-        <span class="hero-pill">BharatCode Build League · November 2026 · demo build</span>
+        <span class="hero-pill">BharatCode Build League, November 2026, demo build</span>
         <h2 class="hero-h">Every report, queue and ward.<br><span class="hero-em">One bridge.</span></h2>
         <p class="hero-p">SwasthyaSetu reads prescriptions and lab reports in plain English and Hindi, books doctors with live queue tokens, and lets families follow an admitted patient's vitals, care and bill - from one app.</p>
         <div class="hero-cta">
           <button class="btn primary big" type="button" data-enter="patient" data-goto="appointments">Book an appointment</button>
-          <button class="btn ghost big" type="button" data-enter="patient" data-goto="scan">Read a prescription →</button>
+          <button class="btn ghost big" type="button" data-enter="patient" data-goto="scan">Read a prescription</button>
         </div>
-        <div class="hero-trust">Documents stay on your device · English + हिंदी · Emergency card works offline</div>
+        <div class="hero-trust">Documents stay on your device. English + हिंदी. Emergency card works offline.</div>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="ha-card ha-token">
           <div class="ha-label">Live queue token</div>
           <div class="ha-big">T-241</div>
-          <div class="ha-sub">5 patients ahead · ~44 min</div>
+          <div class="ha-sub">5 patients ahead, ~44 min</div>
           <div class="ha-bar"><span style="width:26%"></span></div>
         </div>
         <div class="ha-card ha-vitals">
-          <div class="ha-label">ICU-5 · S. Shaikh <span class="ha-live">● live</span></div>
+        <div class="ha-label">ICU-5, S. Shaikh <span class="ha-live">● live</span></div>
           <div class="ha-vrow"><span>Heart rate</span><strong>102 bpm</strong></div>
           <div class="ha-vrow"><span>SpO₂</span><strong>93%</strong></div>
           <div class="ha-vrow"><span>Breathing</span><strong>21 brpm</strong></div>
-          <svg class="ha-spark" viewBox="0 0 200 44" preserveAspectRatio="none"><polyline points="0,30 20,28 40,31 60,24 80,26 100,18 120,22 140,15 160,19 180,12 200,16" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <svg aria-hidden="true" class="ha-spark" viewBox="0 0 200 44" preserveAspectRatio="none"><polyline points="0,30 20,28 40,31 60,24 80,26 100,18 120,22 140,15 160,19 180,12 200,16" fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-linecap="round"/></svg>
         </div>
       </div>
     </div>
@@ -67,37 +68,37 @@
       <p class="sec-sub">Patient-side tools are real and work on your device. Hospital-side screens run on simulated live data in this demo.</p>
       <div class="svc-tiles">
         <button class="tile" type="button" data-enter="patient" data-goto="scan">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg></div>
           <strong>AI prescription & report reader</strong>
           <span>Photo → plain English + Hindi. Salt names, cheaper Jan Aushadhi generics, out-of-range flags.</span>
           <em>Open tool →</em>
         </button>
         <button class="tile" type="button" data-enter="patient" data-goto="appointments">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
           <strong>Book doctors, skip the line</strong>
           <span>Real-time slots, instant token with QR ticket, fees up front.</span>
           <em>Book now →</em>
         </button>
         <button class="tile" type="button" data-enter="patient" data-goto="queue">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
           <strong>Live queue tracker</strong>
           <span>"Patients ahead" and wait estimate, with simulated waiting-room crowd sensing.</span>
           <em>Track token →</em>
         </button>
         <button class="tile" type="button" data-enter="patient" data-goto="labprice">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6M10 3v6.3L4.7 19a2 2 0 0 0 1.8 3h11a2 2 0 0 0 1.8-3L14 9.3V3"/><path d="M7.5 15h9"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6M10 3v6.3L4.7 19a2 2 0 0 0 1.8 3h11a2 2 0 0 0 1.8-3L14 9.3V3"/><path d="M7.5 15h9"/></svg></div>
           <strong>Lab test prices</strong>
           <span>Compare common test prices before you go. Demo price list.</span>
           <em>Compare →</em>
         </button>
         <button class="tile" type="button" data-enter="patient" data-goto="hospital">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
           <strong>Track an admitted patient</strong>
           <span>Live vitals, nurse-recorded care log and running bill - visible to family.</span>
           <em>Open family view →</em>
         </button>
         <button class="tile" type="button" data-enter="patient" data-goto="emergency">
-          <div class="tile-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="tile-ico"><svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
           <strong>Emergency card + QR</strong>
           <span>Blood group, allergies, conditions - scannable offline, stored only on your device.</span>
           <em>Create card →</em>
@@ -157,7 +158,7 @@
   <footer class="site-footer">
     <div class="section-in foot-grid">
       <div>
-        <div class="brand"><span class="logo">✚</span><div><h1>SwasthyaSetu</h1><div class="tagline">your health, one bridge</div></div></div>
+        <div class="brand"><span class="logo" aria-hidden="true">+</span><div><h1>SwasthyaSetu</h1><div class="tagline">your health, one bridge</div></div></div>
         <p class="foot-p">Built for the BharatCode Build League, November 2026.</p>
       </div>
       <div>
@@ -187,7 +188,7 @@
     <label class="inp-label">Staff ID</label>
     <input id="staffId" class="inp" style="width:100%" placeholder="e.g. CC-NURSE-12" value="CC-NURSE-12">
     <label class="inp-label">Password</label>
-    <input id="staffPass" type="password" class="inp" style="width:100%" placeholder="••••••••" value="demo123">
+    <input id="staffPass" type="password" class="inp" style="width:100%" placeholder="Demo only">
     <button class="btn primary" id="staffLoginBtn" style="width:100%;margin-top:14px">Sign in</button>
     <p class="entry-note">Demo sign-in: any ID works; access is role-labeled, no real authentication in this build.</p>
     <button class="btn ghost small" id="backToLanding" style="margin-top:6px">← Back</button>
@@ -196,7 +197,7 @@
 
 <header class="topbar hidden" id="appTop">
   <div class="brand">
-    <span class="logo">✚</span>
+    <span class="logo" aria-hidden="true">+</span>
     <div>
       <h1>SwasthyaSetu</h1>
       <p class="tagline">स्वास्थ्य सेतु - your health, one bridge</p>
@@ -226,7 +227,7 @@
     <div class="upload-row">
       <label class="upload-box" id="uploadBox">
         <input type="file" id="fileInput" accept="image/*" hidden>
-        <span id="uploadLabel">📷 Choose photo</span>
+        <span id="uploadLabel">Choose photo</span>
       </label>
       <div class="doc-type">
         <label><input type="radio" name="doctype" value="prescription" checked> Prescription</label>
@@ -234,7 +235,7 @@
       </div>
       <button id="sampleBtn" class="btn ghost">Use sample document</button>
     </div>
-    <img id="preview" class="preview hidden" alt="document preview">
+    <img id="preview" class="preview hidden" src="samples/sample-prescription.jpg" width="640" height="480" alt="Selected document preview">
     <div class="actions">
       <button id="readBtn" class="btn primary" disabled>Read with AI (BharatCode Qwen vision)</button>
       <span id="keyStatus" class="muted small"></span>
@@ -251,7 +252,7 @@
     <div id="timelineList"></div>
     <div id="trendBox" class="hidden">
       <h3>Lab trends</h3>
-      <canvas id="trendChart" width="640" height="220"></canvas>
+      <canvas id="trendChart" width="640" height="220" aria-label="Lab value trends"></canvas>
       <div id="trendLegend" class="legend"></div>
     </div>
   </div>
@@ -352,7 +353,7 @@
 
 <!-- ============ HOSPITAL DASHBOARD ============ -->
 <section id="tab-hospital" class="panel">
-  <div class="banner-demo">🏥 HOSPITAL-SIDE DASHBOARD - ALL DATA ON THIS TAB IS SIMULATED DEMO DATA, UPDATING LIVE FOR THE DEMO</div>
+  <div class="banner-demo">Hospital dashboard. Demo data updates live.</div>
   <div class="hosp-nav">
     <div class="sb-head"><div class="logo" style="width:34px;height:34px;font-size:18px">+</div><div><div class="sb-title">SwasthyaSetu HMS</div><div class="sb-sub">CityCare Hospital</div></div></div>
     <button class="hosp-tab" data-hview="dashboard" data-staff="1">Dashboard</button>
@@ -366,8 +367,8 @@
   <div id="hview-dashboard" class="hview active">
     <div class="stat-row" id="statRow"></div>
     <div class="chart-row">
-      <div class="card"><h3>Ward census by zone</h3><canvas id="chartCensus" width="640" height="230" class="chart-c"></canvas></div>
-      <div class="card"><h3>Bill per admitted patient (₹, live)</h3><canvas id="chartBill" width="640" height="230" class="chart-c"></canvas></div>
+      <div class="card"><h3>Ward census by zone</h3><canvas id="chartCensus" width="640" height="230" class="chart-c" aria-label="Ward census by zone"></canvas></div>
+      <div class="card"><h3>Bill per admitted patient (₹, live)</h3><canvas id="chartBill" width="640" height="230" class="chart-c" aria-label="Live bill per admitted patient"></canvas></div>
     </div>
   </div>
   <div id="hview-ward" class="hview">
@@ -376,8 +377,8 @@
       <div class="card ward-stage-card">
         <h3>Ward live preview <span class="live-dot"></span> <span class="muted small">click a bed to inspect the patient</span>
           <button id="vitalsAiBtn" class="btn ghost small" style="float:right">AI shift summary</button></h3>
-        <div class="ward-stage"><canvas id="wardCanvas"></canvas></div>
-        <div class="legend">Bed color: <span class="pill ok">stable</span> <span class="pill warn">review</span> <span class="pill bad">critical</span> · vitals drift live (simulated)</div>
+        <div class="ward-stage"><canvas id="wardCanvas" aria-label="Interactive 3D ward. Drag to rotate and select a bed to inspect its patient."></canvas></div>
+        <div class="legend">Bed color: <span class="pill ok">stable</span> <span class="pill warn">review</span> <span class="pill bad">critical</span>, vitals drift live (simulated)</div>
         <div id="vitalsAi" class="notice hidden"></div>
       </div>
       <div class="card" id="wardPatient"></div>
@@ -390,21 +391,21 @@
       <div id="fvHeader"></div>
       <div id="fvAlert"></div>
       <div class="family-grid">
-        <div class="vital-card body-card">
+        <div class="body-card">
           <div class="vital-label">Live body view <span class="muted" style="text-transform:none">(animated, not diagnostic)</span></div>
-          <canvas id="bodyCanvas" class="body-canvas"></canvas>
+          <canvas id="bodyCanvas" class="body-canvas" aria-label="Animated 3D body view, not diagnostic"></canvas>
           <div id="fvBody"></div>
         </div>
         <div class="vitals-grid">
-        <div class="vital-card"><div class="vital-label">Heart rate</div><div class="vital-num" id="fvHr">–</div><div class="vital-unit">bpm</div><canvas id="fvEcg" width="250" height="56"></canvas></div>
-        <div class="vital-card"><div class="vital-label">SpO₂</div><div class="vital-num" id="fvSpo2">–</div><div class="vital-unit">%</div></div>
-        <div class="vital-card"><div class="vital-label">Blood pressure</div><div class="vital-num" id="fvBp">–</div><div class="vital-unit">mmHg</div></div>
-        <div class="vital-card hidden" id="fvRf"><div class="vital-label">Breathing (contactless)</div><div class="vital-num" id="fvBrpm">–</div><div class="vital-unit">brpm · WiFi sensing <span class="demo-pill">sim</span></div></div>
-        <div class="vital-card"><div class="vital-label">Temperature</div><div class="vital-num" id="fvTemp">–</div><div class="vital-unit">°F</div></div>
+        <div class="vital-cell"><div class="vital-label">Heart rate</div><div class="vital-num" id="fvHr">…</div><div class="vital-unit">bpm</div><canvas id="fvEcg" width="250" height="56" aria-label="Heart rate waveform"></canvas></div>
+        <div class="vital-cell"><div class="vital-label">SpO₂</div><div class="vital-num" id="fvSpo2">…</div><div class="vital-unit">%</div></div>
+        <div class="vital-cell"><div class="vital-label">Blood pressure</div><div class="vital-num" id="fvBp">…</div><div class="vital-unit">mmHg</div></div>
+        <div class="vital-cell hidden" id="fvRf"><div class="vital-label">Breathing (contactless)</div><div class="vital-num" id="fvBrpm">…</div><div class="vital-unit">brpm, WiFi sensing <span class="demo-pill">sim</span></div></div>
+        <div class="vital-cell"><div class="vital-label">Temperature</div><div class="vital-num" id="fvTemp">…</div><div class="vital-unit">°F</div></div>
         </div>
       </div>
       <h3>Heart rate trend (last hour, simulated)</h3>
-      <canvas id="fvTrend" width="700" height="150" class="trend-canvas"></canvas>
+      <canvas id="fvTrend" width="700" height="150" class="trend-canvas" aria-label="Heart rate trend over the last hour"></canvas>
       <h3>What the care team gave and did <span class="muted small">(nurse-recorded, visible to family)</span></h3>
       <div id="fvLog"></div>
     </div>
@@ -467,3 +468,4 @@
 <script src="app.js"></script>
 </body>
 </html>
+

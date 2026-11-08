@@ -37,6 +37,19 @@ window.Ward3D = (() => {
     const alarm = new THREE.Mesh(new THREE.SphereGeometry(0.09, 12, 10), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xef4444, emissiveIntensity: 0.9 }));
     alarm.position.set(-1.32, 1.5, 0); alarm.visible = false; g.add(alarm);
     const label = textSprite(p.bed); label.position.set(0, 1.9, 0); g.add(label);
+    // Small bedside equipment gives each bed useful clinical context in the ward view.
+    const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 1.25, 10), new THREE.MeshStandardMaterial({ color: 0x9aa5a1, metalness: 0.65, roughness: 0.35 }));
+    stand.position.set(0.88, 1.08, 0.72); g.add(stand);
+    const monitor = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.42, 0.12), new THREE.MeshStandardMaterial({ color: 0x193a3b, roughness: 0.3 }));
+    monitor.position.set(0.88, 1.72, 0.72); monitor.castShadow = true; g.add(monitor);
+    const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.48, 0.31), new THREE.MeshBasicMaterial({ color: 0x37d5ac }));
+    screen.position.set(0.88, 1.72, 0.787); g.add(screen);
+    const ivPole = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.024, 1.9, 8), new THREE.MeshStandardMaterial({ color: 0x9aa5a1, metalness: 0.7, roughness: 0.3 }));
+    ivPole.position.set(-0.28, 1.15, 0.92); g.add(ivPole);
+    const ivBag = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.32, 0.08), new THREE.MeshStandardMaterial({ color: 0x91d9e8, transparent: true, opacity: 0.8, roughness: 0.25 }));
+    ivBag.position.set(-0.28, 2.05, 0.92); g.add(ivBag);
+    const hook = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.014, 6, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0x9aa5a1, metalness: 0.7 }));
+    hook.rotation.z = Math.PI; hook.position.set(-0.28, 2.14, 0.92); g.add(hook);
     g.position.set(p.xy3[0], 0, p.xy3[1]);
     scene.add(g);
     return { group: g, mattress, body, bodyMat, alarm, baseY: 0.9 };
@@ -158,3 +171,4 @@ window.BodyView = (() => {
   }
   return { init, setHR: v => { hr = v; }, isReady: () => ready, hasFailed: () => failed };
 })();
+

@@ -6,6 +6,7 @@
 const API_PROXY = "/api/responses";
 const MODEL = "qwen-3.8-27b";
 const $ = (id) => document.getElementById(id);
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
 /* ---------------- state ---------------- */
 const store = {
@@ -63,8 +64,11 @@ function respText(resp) {
 /* ---------------- scan / AI reader ---------------- */
 let currentImage = null; // {dataUrl, b64}
 function downscale(file, cb) {
+  if (!file.type.startsWith("image/") || file.size > 12 * 1024 * 1024) { alert("Choose an image under 12 MB."); return; }
   const img = new Image();
   img.onload = () => {
+    URL.revokeObjectURL(img.src);
+    if (!img.width || !img.height || img.width * img.height > 40_000_000) { alert("That image is too large to process safely."); return; }
     const max = 1024, scale = Math.min(1, max / Math.max(img.width, img.height));
     const c = document.createElement("canvas");
     c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
@@ -72,27 +76,27 @@ function downscale(file, cb) {
     const url = c.toDataURL("image/jpeg", 0.7);
     cb({ dataUrl: url, b64: url.split(",")[1] });
   };
+  img.onerror = () => { URL.revokeObjectURL(img.src); alert("This image could not be opened."); };
   img.src = URL.createObjectURL(file);
 }
 $("fileInput").addEventListener("change", e => {
   const f = e.target.files[0]; if (!f) return;
-  downscale(f, d => { currentImage = d; $("preview").src = d.dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "📷 " + f.name; });
+  downscale(f, d => { currentImage = d; $("preview").src = d.dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = f.name; });
 });
 async function loadSampleDoc(url, kind) {
   try {
     const blob = await (await fetch(url)).blob();
-    return await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
-  } catch (e) {
-    return SAMPLE_DOCS[kind];  // file:// or offline: use the embedded copy
+    return await new Promise(resolve => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.readAsDataURL(blob); });
+  } catch {
+    return SAMPLE_DOCS[kind];
   }
 }
-
 $("sampleBtn").addEventListener("click", async () => {
   const kind = document.querySelector("input[name=doctype]:checked").value;
   const url = kind === "labreport" ? "samples/sample-lab-report.jpg" : "samples/sample-prescription.jpg";
   const dataUrl = await loadSampleDoc(url, kind === "labreport" ? "labreport" : "prescription");
   currentImage = { dataUrl, b64: dataUrl.split(",")[1] };
-  $("preview").src = dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "📷 sample document";
+  $("preview").src = dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; $("uploadLabel").textContent = "Sample document";
 });
 
 const SCAN_PROMPT = `You are a careful Indian medical-document reading assistant. Read the attached document image (a doctor's prescription or a lab report from India, possibly handwritten).
@@ -181,25 +185,25 @@ function renderScanResult(r, usedDemo) {
   let h = `<div class="card">`;
   if (usedDemo) h += `<p class="warn">Demo mode (no API key reached): showing a pre-computed read of the sample document. Connect a BharatCode key for live reading.</p>`;
   h += `<h2>What this document says</h2>
-    <p class="muted">${r.doctor_or_lab || ""} ${r.date ? "· " + r.date : ""} · AI confidence: ${r.confidence || "medium"}</p>
-    <p><strong>English:</strong> ${r.summary_en}</p>
-    <p style="margin-top:6px"><strong>हिंदी:</strong> ${r.summary_hi}</p>`;
+    <p class="muted">${escapeHTML(r.doctor_or_lab)} ${r.date ? "· " + escapeHTML(r.date) : ""}, AI confidence: ${escapeHTML(r.confidence || "medium")}</p>
+    <p><strong>English:</strong> ${escapeHTML(r.summary_en)}</p>
+    <p style="margin-top:6px"><strong>हिंदी:</strong> ${escapeHTML(r.summary_hi)}</p>`;
   if (r.medicines && r.medicines.length) {
     h += `<h3>Medicines (${r.medicines.length})</h3><table class="med-table"><thead><tr><th>Medicine</th><th>Salt</th><th>How to take</th><th>Purpose</th><th>Cheaper generic (Jan Aushadhi)</th></tr></thead><tbody>`;
-    for (const m of r.medicines) h += `<tr><td><strong>${m.name}</strong><br><span class="muted small">${m.dosage} · ${m.duration}</span></td><td>${m.salt}</td><td>${m.frequency}<br><span class="muted small">${m.timing}</span></td><td>${m.purpose_en}<br><span class="muted small">${m.purpose_hi}</span></td><td>${m.generic_alt}<br><span class="muted small">${m.jan_aushadhi}</span></td></tr>`;
+    for (const m of r.medicines) h += `<tr><td><strong>${escapeHTML(m.name)}</strong><br><span class="muted small">${escapeHTML(m.dosage)}, ${escapeHTML(m.duration)}</span></td><td>${escapeHTML(m.salt)}</td><td>${escapeHTML(m.frequency)}<br><span class="muted small">${escapeHTML(m.timing)}</span></td><td>${escapeHTML(m.purpose_en)}<br><span class="muted small">${escapeHTML(m.purpose_hi)}</span></td><td>${escapeHTML(m.generic_alt)}<br><span class="muted small">${escapeHTML(m.jan_aushadhi)}</span></td></tr>`;
     h += `</tbody></table>`;
-    const sched = r.medicines.map(m => `<li><strong>${m.name}</strong> - ${m.timing}</li>`).join("");
+    const sched = r.medicines.map(m => `<li><strong>${escapeHTML(m.name)}</strong> - ${escapeHTML(m.timing)}</li>`).join("");
     h += `<h3>Day schedule</h3><ul>${sched}</ul>`;
   }
   if (r.lab_values && r.lab_values.length) {
     h += `<h3>Lab values</h3><table class="med-table"><thead><tr><th>Test</th><th>Result</th><th>Reference</th><th>Flag</th></tr></thead><tbody>`;
     for (const v of r.lab_values) {
       const cls = v.flag === "abnormal" ? "bad" : v.flag === "borderline" ? "warn" : "ok";
-      h += `<tr><td>${v.test}</td><td><strong>${v.value} ${v.unit}</strong></td><td>${v.range}</td><td><span class="pill ${cls}">${v.flag}</span></td></tr>`;
+      h += `<tr><td>${escapeHTML(v.test)}</td><td><strong>${escapeHTML(v.value)} ${escapeHTML(v.unit)}</strong></td><td>${escapeHTML(v.range)}</td><td><span class="pill ${cls}">${escapeHTML(v.flag)}</span></td></tr>`;
     }
     h += `</tbody></table>`;
   }
-  if (r.interactions && r.interactions.length) h += `<h3>Cautions</h3><ul>${r.interactions.map(i => `<li>${i}</li>`).join("")}</ul>`;
+  if (r.interactions && r.interactions.length) h += `<h3>Cautions</h3><ul>${r.interactions.map(i => `<li>${escapeHTML(i)}</li>`).join("")}</ul>`;
   h += `<p class="warn" style="margin-top:10px">Understanding aid only - confirm with your doctor or pharmacist before acting on this.</p></div>`;
   box.innerHTML = h;
 }
@@ -219,8 +223,8 @@ function offerReminders(r) {
 function renderTimeline() {
   const mine = scans.filter(s => s.profileId === activeId).sort((a, b) => b.ts - a.ts);
   const box = $("timelineList");
-  if (!mine.length) { box.innerHTML = `<p class="muted">Nothing yet for ${activeProfile().name}. Read a document first.</p>`; $("trendBox").classList.add("hidden"); return; }
-  box.innerHTML = mine.map(s => `<div class="tl-item"><img src="${s.thumb}" alt=""><div><strong>${s.kind === "labreport" ? "🧪 Lab report" : "📝 Prescription"}</strong> · ${s.result.doctor_or_lab || "document"}<div class="when">${new Date(s.ts).toLocaleString("en-IN")}</div><div class="small muted">${(s.result.summary_en || "").slice(0, 110)}…</div></div></div>`).join("");
+  if (!mine.length) { box.innerHTML = `<p class="muted">Nothing yet for ${escapeHTML(activeProfile().name)}. Read a document first.</p>`; $("trendBox").classList.add("hidden"); return; }
+  box.innerHTML = mine.map(s => `<div class="tl-item"><img src="${/^data:image\/(jpeg|png|webp);base64,[a-z0-9+/]*={0,2}$/i.test(s.thumb || "") ? s.thumb : ""}" alt=""><div><strong>${s.kind === "labreport" ? "Lab report" : "Prescription"}</strong>, ${escapeHTML(s.result.doctor_or_lab || "document")}<div class="when">${new Date(s.ts).toLocaleString("en-IN")}</div><div class="small muted">${escapeHTML((s.result.summary_en || "").slice(0, 110))}…</div></div></div>`).join("");
   // trend: same-test values across lab reports
   const series = {};
   for (const s of mine.filter(x => x.result.lab_values)) {
@@ -254,10 +258,11 @@ function renderTimeline() {
 
 /* ---------------- reminders ---------------- */
 function renderReminders() {
-  $("remMember").innerHTML = profiles.map(p => `<option value="${p.id}" ${p.id === activeId ? "selected" : ""}>${p.name}</option>`).join("");
+  $("remMember").innerHTML = profiles.map(p => `<option value="${escapeHTML(p.id)}" ${p.id === activeId ? "selected" : ""}>${escapeHTML(p.name)}</option>`).join("");
   const mine = reminders.filter(r => r.profileId === activeId);
   const now = new Date(), hhmm = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
-  $("reminderList").innerHTML = mine.length ? mine.map(r => `<div class="rem-row ${r.time <= hhmm && r.active ? "due" : ""}"><strong>${r.time}</strong> ${r.name} <button class="btn small danger" onclick="delReminder('${r.id}')">✕</button></div>`).join("") : `<p class="muted">No reminders for ${activeProfile().name} yet.</p>`;
+  $("reminderList").innerHTML = mine.length ? mine.map(r => `<div class="rem-row ${r.time <= hhmm && r.active ? "due" : ""}"><strong>${escapeHTML(r.time)}</strong> ${escapeHTML(r.name)} <button class="btn small danger" data-reminder-id="${escapeHTML(r.id)}">Remove</button></div>`).join("") : `<p class="muted">No reminders for ${escapeHTML(activeProfile().name)} yet.</p>`;
+  $("reminderList").querySelectorAll("[data-reminder-id]").forEach(btn => btn.addEventListener("click", () => delReminder(btn.dataset.reminderId)));
 }
 window.delReminder = (id) => { reminders = reminders.filter(r => r.id !== id); store.set("reminders", reminders); renderReminders(); };
 $("remAdd").addEventListener("click", () => {
@@ -277,13 +282,15 @@ function renderHomeActivity() {
   const mins = 12 + Math.floor((Date.now() / 60000) % 50);
   const okk = mins < 90;
   $("homeActivity").innerHTML = `<div class="rem-row ${okk ? "" : "due"}"><strong>🏠 Aai (72), at home</strong>
-    <span>Last movement: ${mins} min ago (kitchen) · night sleep: 7h 10m, 2 wake-ups</span>
+    <span>Last movement: ${mins} min ago (kitchen), night sleep: 7h 10m, 2 wake-ups</span>
     <span class="pill ${okk ? "ok" : "bad"}">${okk ? "normal" : "check on her"}</span>
     <span class="demo-pill">simulated sensor feed</span></div>`;
 }
 function renderFamily() {
   renderHomeActivity();
-  $("familyList").innerHTML = profiles.map(p => `<div class="doc-card"><h4>${p.name} ${p.id === activeId ? '<span class="badge-active">active</span>' : ""}</h4><p class="muted small">Age: ${p.age || "—"} · Blood: ${p.blood || "—"}</p><div class="formrow"><button class="btn ghost small" onclick="switchProfile('${p.id}')">Switch</button>${profiles.length > 1 ? `<button class="btn small danger" onclick="delProfile('${p.id}')">Remove</button>` : ""}</div></div>`).join("");
+  $("familyList").innerHTML = profiles.map(p => `<div class="doc-card"><h4>${escapeHTML(p.name)} ${p.id === activeId ? '<span class="badge-active">active</span>' : ""}</h4><p class="muted small">Age: ${escapeHTML(p.age || "—")}, Blood: ${escapeHTML(p.blood || "—")}</p><div class="formrow"><button class="btn ghost small" data-switch-profile="${escapeHTML(p.id)}">Switch</button>${profiles.length > 1 ? `<button class="btn small danger" data-delete-profile="${escapeHTML(p.id)}">Remove</button>` : ""}</div></div>`).join("");
+  $("familyList").querySelectorAll("[data-switch-profile]").forEach(btn => btn.addEventListener("click", () => switchProfile(btn.dataset.switchProfile)));
+  $("familyList").querySelectorAll("[data-delete-profile]").forEach(btn => btn.addEventListener("click", () => delProfile(btn.dataset.deleteProfile)));
 }
 window.switchProfile = (id) => { activeId = id; store.set("active", id); renderFamily(); };
 window.delProfile = (id) => {
@@ -304,11 +311,11 @@ function renderEcard() {
   const text = ["EMERGENCY HEALTH CARD", "Name: " + p.name, "Age: " + (p.age || "-"), "Blood: " + (p.blood || "-"),
     "Conditions: " + (p.conditions || "none listed"), "Allergies: " + (p.allergies || "none listed"),
     "Medicines: " + (meds.join(", ") || "none listed"), "Emergency contact: " + (p.emergencyContact || "-")].join("\n");
-  $("ecardBox").innerHTML = `<div class="ecard-inner"><h3>🚨 ${p.name}</h3>
-    <p><strong>Blood group:</strong> ${p.blood || "—"}</p><p><strong>Conditions:</strong> ${p.conditions || "none listed"}</p>
-    <p><strong>Allergies:</strong> ${p.allergies || "none listed"}</p><p><strong>Current medicines:</strong> ${meds.join(", ") || "none listed"}</p>
-    <p><strong>Emergency contact:</strong> ${p.emergencyContact || "—"}</p>
-    <div class="formrow"><input id="ecBlood" class="inp" style="max-width:120px" placeholder="Blood group" value="${p.blood || ""}"><input id="ecCond" class="inp" placeholder="Conditions" value="${p.conditions || ""}"><input id="ecAllergy" class="inp" placeholder="Allergies" value="${p.allergies || ""}"><input id="ecContact" class="inp" placeholder="Emergency contact" value="${p.emergencyContact || ""}"><button class="btn primary small" onclick="saveEcard()">Save</button></div>
+  $("ecardBox").innerHTML = `<div class="ecard-inner"><h3>🚨 ${escapeHTML(p.name)}</h3>
+    <p><strong>Blood group:</strong> ${escapeHTML(p.blood || "—")}</p><p><strong>Conditions:</strong> ${escapeHTML(p.conditions || "none listed")}</p>
+    <p><strong>Allergies:</strong> ${escapeHTML(p.allergies || "none listed")}</p><p><strong>Current medicines:</strong> ${escapeHTML(meds.join(", ") || "none listed")}</p>
+    <p><strong>Emergency contact:</strong> ${escapeHTML(p.emergencyContact || "—")}</p>
+    <div class="formrow"><input id="ecBlood" class="inp" style="max-width:120px" placeholder="Blood group" value="${escapeHTML(p.blood)}"><input id="ecCond" class="inp" placeholder="Conditions" value="${escapeHTML(p.conditions)}"><input id="ecAllergy" class="inp" placeholder="Allergies" value="${escapeHTML(p.allergies)}"><input id="ecContact" class="inp" placeholder="Emergency contact" value="${escapeHTML(p.emergencyContact)}"><button class="btn primary small" onclick="saveEcard()">Save</button></div>
     <div id="qr"></div></div>`;
   if (window.QRCode) new QRCode($("qr"), { text, width: 160, height: 160 });
 }
@@ -374,8 +381,8 @@ function renderDoctors() {
       <div class="doc-avatar" style="background:${d.color}">${initials(d.name)}</div>
       <div class="doc-mid">
         <div class="doc-name">${d.name}</div>
-        <div class="doc-sub">${d.spec} · ${d.exp} yrs exp</div>
-        <div class="doc-sub">${d.hospital}, ${d.area} · ${d.dist}</div>
+        <div class="doc-sub">${d.spec}, ${d.exp} yrs exp</div>
+        <div class="doc-sub">${d.hospital}, ${d.area}, ${d.dist}</div>
         <div class="doc-meta"><span class="doc-rating">★ ${d.rating}</span><span class="muted small">${d.stories} patient stories</span></div>
       </div>
       <div class="doc-right">
@@ -399,7 +406,7 @@ window.pickDoctor = (id) => {
 window.setPickDay = day => { pickState.day = day; renderSlotPicker(); };
 function renderSlotPicker() {
   const d = DOCTORS.find(x => x.id === pickState.id);
-  $("slotTitle").textContent = d.name + " · " + d.hospital;
+  $("slotTitle").textContent = d.name + ", " + d.hospital;
   const days = Object.keys(d.days);
   $("dayChips").innerHTML = days.map(day => `<button class="day-chip ${pickState.day === day ? "active" : ""}" onclick="setPickDay('${day}')">${day}</button>`).join("");
   const groups = d.days[pickState.day] || {};
@@ -420,13 +427,13 @@ window.bookSlot = (id, slot) => {
   $("bookingConfirm").innerHTML = `<div class="ticket">
     <div class="ticket-head"><span class="ticket-check">✓</span> Appointment booked <span class="demo-pill">demo</span></div>
     <div class="ticket-body">
-      <div><div class="doc-name">${d.name}</div><div class="doc-sub">${d.spec} · ${d.hospital}, ${d.area}</div></div>
+      <div><div class="doc-name">${d.name}</div><div class="doc-sub">${d.spec}, ${d.hospital}, ${d.area}</div></div>
       <div class="ticket-row"><span>Slot</span><strong>${slot}</strong></div>
       <div class="ticket-row"><span>Token</span><strong class="ticket-token">${booking.token}</strong></div>
       <div class="ticket-row"><span>Fee</span><strong>₹${d.fee} <span class="muted small">(pay at clinic)</span></strong></div>
       <div class="ticket-qr" id="ticketQr"></div>
     </div>
-    <div class="ticket-foot">Show the token at reception · Track your turn live in the Queue tab</div>
+    <div class="ticket-foot">Show the token at reception, Track your turn live in the Queue tab</div>
   </div>`;
   if (window.QRCode) new QRCode($("ticketQr"), { text: `SwasthyaSetu booking ${booking.token} | ${d.name} | ${slot}`, width: 110, height: 110 });
   renderQueue();
@@ -436,7 +443,7 @@ function renderQueue() {
   if (!booking) { box.innerHTML = `<p class="muted">No active token. Book an appointment first (demo data).</p>`; return; }
   const eta = booking.ahead * 8 + Math.round(crowdCount / 6);
   const pct = Math.max(0, Math.min(100, 100 - booking.ahead * 16));
-  box.innerHTML = `<p class="queue-token">${booking.doctor} · ${booking.hospital}<br>Token <strong>${booking.token}</strong> · Slot ${booking.slot}</p>
+  box.innerHTML = `<p class="queue-token">${escapeHTML(booking.doctor)}, ${escapeHTML(booking.hospital)}<br>Token <strong>${escapeHTML(booking.token)}</strong>, Slot ${escapeHTML(booking.slot)}</p>
     <p class="queue-big">${booking.ahead > 0 ? booking.ahead + " patients ahead" : "Your turn now!"}</p>
     <div class="progress"><div style="width:${pct}%"></div></div>
     <p class="muted">Estimated wait: ~${eta} min ${booking.ahead <= 2 ? "· we will alert you when 2 patients are left" : ""}</p>
@@ -459,7 +466,7 @@ function renderLabPrices() {
   sel.onchange = show; show();
 }
 window.bookHomeSample = (lab, test, price) => {
-  $("labBooked").innerHTML = `<div class="confirm-card"><strong>✅ Home sample collection booked (demo)</strong><br>${test} at ${lab} · ₹${price}<br>Collection: tomorrow 7-9 AM. Pay after sample collection.</div>`;
+  $("labBooked").innerHTML = `<div class="confirm-card"><strong>Home sample collection booked (demo)</strong><br>${test} at ${lab}, ₹${price}<br>Collection: tomorrow 7-9 AM. Pay after sample collection.</div>`;
 };
 
 /* ---------------- hospital: live 3D ward + family view + live bill + care log (demo) ---------------- */
@@ -502,7 +509,7 @@ function renderStats() {
   const entries = careLog.length;
   $("statRow").innerHTML = [
     ["Beds occupied", occ + "/" + total, Math.round(occ / total * 100) + "% occupancy"],
-    ["Patients needing review", crit + rev, crit + " critical · " + rev + " review"],
+    ["Patients needing review", crit + rev, crit + " critical, " + rev + " review"],
     ["Care log entries today", entries, "nurse-recorded"],
     ["Revenue today", "₹" + revenue.toLocaleString("en-IN"), "across " + PATIENTS.length + " admitted patients"]
   ].map(([l, v, sub]) => `<div class="stat-card"><div class="stat-label">${l}</div><div class="stat-num">${v}</div><div class="stat-sub">${sub}</div></div>`).join("");
@@ -537,8 +544,8 @@ function renderWard() {
   if (wardInited) Ward3D.sync(PATIENTS, wardSelected);
   renderSensorAlerts();
   const p = pat(wardSelected), st = patStatus(p);
-  $("wardPatient").innerHTML = `<h3>${p.bed} · ${p.name}</h3>
-    <p class="muted">${p.prob} · ${p.day} · Age ${p.age} · ${p.zone}</p>
+  $("wardPatient").innerHTML = `<h3>${p.bed}, ${p.name}</h3>
+    <p class="muted">${p.prob}, ${p.day}, Age ${p.age}, ${p.zone}</p>
     <p><span class="pill ${st === "stable" ? "ok" : st === "review" ? "warn" : "bad"}">${st}</span> <span class="live-dot"></span></p>
     <table class="tbl" style="margin-top:8px"><tbody>
       <tr><td>Heart rate</td><td><strong>${Math.round(p.hr)} bpm</strong></td></tr>
@@ -562,8 +569,8 @@ document.querySelectorAll(".hosp-tab").forEach(b => b.addEventListener("click", 
   if (b.dataset.hview === "night") renderNight();
 }));
 function syncSelectors() {
-  $("famSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === famSelected ? "selected" : ""}>${p.bed} · ${p.name}</option>`).join("");
-  $("billSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === billSelected ? "selected" : ""}>${p.bed} · ${p.name}</option>`).join("");
+  $("famSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === famSelected ? "selected" : ""}>${p.bed}, ${p.name}</option>`).join("");
+  $("billSelect").innerHTML = PATIENTS.map(p => `<option value="${p.id}" ${p.id === billSelected ? "selected" : ""}>${p.bed}, ${p.name}</option>`).join("");
 }
 $("famSelect").addEventListener("change", e => { famSelected = e.target.value; renderFamView(); });
 $("billSelect").addEventListener("change", e => { billSelected = e.target.value; renderBill(); });
@@ -607,7 +614,7 @@ function renderBody(p) {
 function renderFamView() {
   const p = pat(famSelected); if (!p) return;
   const st = patStatus(p);
-  $("fvHeader").innerHTML = `<h2 style="margin-top:4px">${p.name} <span class="muted" style="font-size:14px;font-weight:400">· ${p.bed}, ${p.zone} · ${p.prob} · ${p.day}</span></h2>
+  $("fvHeader").innerHTML = `<h2 style="margin-top:4px">${p.name} <span class="muted" style="font-size:14px;font-weight:400">· ${p.bed}, ${p.zone}, ${p.prob}, ${p.day}</span></h2>
     <span class="pill ${st === "stable" ? "ok" : st === "review" ? "warn" : "bad"}">${st}</span>`;
   $("fvUpdated").textContent = "updated " + nowHM() + ":" + String(new Date().getSeconds()).padStart(2, "0");
   $("fvHr").textContent = Math.round(p.hr);
@@ -642,7 +649,7 @@ function renderNight() {
 }
 function renderCareLog() {
   $("careLogTable").querySelector("tbody").innerHTML = careLog.slice().reverse().map(l =>
-    `<tr><td>${l.t}</td><td>${pat(l.pid).bed} · ${pat(l.pid).name}</td><td>${l.entry}</td><td>${l.dose}</td><td>${l.route}</td><td>${l.by}</td></tr>`).join("");
+    `<tr><td>${l.t}</td><td>${pat(l.pid).bed}, ${pat(l.pid).name}</td><td>${l.entry}</td><td>${l.dose}</td><td>${l.route}</td><td>${l.by}</td></tr>`).join("");
 }
 
 /* live bill */
@@ -685,7 +692,7 @@ setInterval(sensorTick, 4000);
 function renderSensorAlerts() {
   const box = $("wardAlerts"); if (!box) return;
   box.innerHTML = sensorAlerts.length ? sensorAlerts.map(a =>
-    `<div class="sensor-alert ${Date.now() < (pat(a.pid).alertUntil || 0) ? "hot" : ""}"><strong>${a.t}</strong> ${pat(a.pid).bed} · ${a.text} <span class="demo-pill">simulated sensor feed</span></div>`).join("") : "";
+    `<div class="sensor-alert ${Date.now() < (pat(a.pid).alertUntil || 0) ? "hot" : ""}"><strong>${a.t}</strong> ${pat(a.pid).bed}, ${a.text} <span class="demo-pill">simulated sensor feed</span></div>`).join("") : "";
 }
 
 /* simulation engine */
@@ -777,7 +784,7 @@ function configureHospitalRole() {
   document.body.classList.toggle("role-staff", role === "staff");
   document.querySelectorAll(".hosp-tab[data-staff]").forEach(b => b.style.display = role === "staff" ? "" : "none");
   if (role === "staff") {
-    $("caPatient").innerHTML = PATIENTS.map(p => `<option value="${p.id}">${p.bed} · ${p.name}</option>`).join("");
+    $("caPatient").innerHTML = PATIENTS.map(p => `<option value="${p.id}">${p.bed}, ${p.name}</option>`).join("");
     document.querySelector('.hosp-tab[data-hview="dashboard"]').click();
   } else {
     document.querySelector('.hosp-tab[data-hview="family"]').click();
@@ -797,8 +804,8 @@ function renderLandingDocs() {
     <div class="ldoc-av" style="background:${d.color}">${initials(d.name)}</div>
     <strong>${d.name}</strong>
     <div class="ldoc-spec">${d.spec}</div>
-    <div class="ldoc-meta">${d.hospital} · ${d.exp} yrs · ★ ${d.rating}</div>
-    <div class="ldoc-fee">₹${d.fee} · ${d.avail === "today" ? "Available today" : "Next: tomorrow"}</div>
+    <div class="ldoc-meta">${d.hospital}, ${d.exp} yrs, ★ ${d.rating}</div>
+    <div class="ldoc-fee">₹${d.fee}, ${d.avail === "today" ? "Available today" : "Next: tomorrow"}</div>
   </div>`).join("");
 }
 renderLandingDocs();
@@ -822,11 +829,11 @@ const h = location.hash.slice(1);
 if (h && document.getElementById("tab-" + h)) document.querySelector(`.tab[data-tab="${h}"]`).click();
 if (new URLSearchParams(location.search).has("shot")) document.documentElement.classList.add("noanim");
 if (location.protocol === "file:") {
-  const nb = document.createElement("div");
-  nb.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:99;background:#16211b;color:#cde9d6;font:13px/1.5 'DM Mono',monospace;padding:10px 16px;display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap";
-  nb.innerHTML = '<span>Opened as a file - the app works, but the 3D anatomy model needs a tiny local server: <b style="color:#fff">python3 serve.py</b> then open <b style="color:#fff">http://localhost:8000</b></span><button id="fileBannerX" style="background:none;border:1px solid #cde9d6;color:#cde9d6;border-radius:8px;padding:3px 10px;cursor:pointer">OK</button>';
-  document.body.appendChild(nb);
-  document.getElementById("fileBannerX").onclick = () => nb.remove();
+  const note = document.createElement("div");
+  note.className = "file-helper";
+  note.innerHTML = 'Opened from a file. Most features work offline; the 3D anatomy model needs a local server: <strong>python3 serve.py</strong>, then open <strong>http://localhost:8000</strong>. <button type="button" aria-label="Dismiss">Dismiss</button>';
+  document.body.appendChild(note);
+  note.querySelector("button").addEventListener("click", () => note.remove());
 }
 if (role) enterApp();
 const hv = new URLSearchParams(location.search).get("hview");
@@ -845,3 +852,4 @@ if (new URLSearchParams(location.search).has("autodemo")) {
     $("preview").src = dataUrl; $("preview").classList.remove("hidden"); $("readBtn").disabled = false; renderScanResult(DEMO_RESULT(), true);
   })();
 }
+
